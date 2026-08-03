@@ -51,6 +51,9 @@ img{display:block;max-width:100%;height:auto}
 .article section{padding:28px 0;border-bottom:1px solid var(--line)}
 .article h2{margin:0 0 12px;color:var(--navy);font-size:24px;letter-spacing:-.03em}
 .article p{margin:0}
+.article-image{margin:24px 0 0}
+.article-image img{width:100%;max-height:680px;border-radius:16px;background:var(--soft);object-fit:cover}
+.article-image figcaption{margin-top:8px;color:var(--muted);font-size:13px}
 .result{padding:24px!important;border:0!important;border-radius:16px;background:var(--soft)}
 .faq details{border-top:1px solid var(--line);padding:18px 0}
 .faq summary{cursor:pointer;font-weight:900}
@@ -59,6 +62,10 @@ img{display:block;max-width:100%;height:auto}
 .cta h2{margin:0 0 8px;color:#fff}
 .cta p{margin:0 0 20px;color:#dbe9fa}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 24px;border-radius:999px;background:#fff;color:var(--navy);font-weight:900}
+.related-links{display:grid;gap:10px;padding:28px 0;border-bottom:1px solid var(--line)}
+.related-links h2{margin:0 0 4px}
+.related-links a{padding:14px 16px;border:1px solid var(--line);border-radius:12px;color:var(--blue);font-weight:800}
+.related-links a:hover{border-color:var(--blue);background:var(--soft)}
 .section-head{padding:38px 0 16px;border-bottom:2px solid var(--navy)}
 .section-head h1{margin:0;color:var(--navy);font-size:clamp(28px,5vw,40px)}
 .section-head p{margin:8px 0 0;color:var(--muted)}

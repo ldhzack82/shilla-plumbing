@@ -4751,6 +4751,7 @@
       gtag("js", new Date());
 
       gtag("config", "G-GC6WFP30ER");
+      gtag("config", "AW-18250530314");
     </script>
 
     <style>
@@ -6171,11 +6172,15 @@
               event_label: label || "1877-0558",
               phone_number: "1877-0558",
             });
+            gtag("event", "conversion", {
+              send_to: "AW-18250530314/F0_ICMyng-IcEIr8w_5D",
+            });
           }
         }
         document.addEventListener("click", function (e) {
           var link = e.target.closest && e.target.closest('a[href^="tel:"]');
-          if (link) {
+          if (link && !e.__shillaPhoneTracked) {
+            e.__shillaPhoneTracked = true;
             trackPhoneClick((link.textContent || "").trim());
           }
         });

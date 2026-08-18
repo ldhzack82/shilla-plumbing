@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>신라건축설비 현장사례 관리자</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="admin-head"><div><strong>신라건축설비</strong><span>현장사례 관리자</span></div><a href="/field-notes/" target="_blank" rel="noopener">게시판 보기</a></header>
+  <main>
+    <section id="loginPanel" class="panel login-panel">
+      <p class="kicker">SHILLA ADMIN</p><h1>관리자 로그인</h1>
+      <p>Vercel에 등록한 관리자 비밀번호를 입력하세요.</p>
+      <form id="loginForm"><label>관리자 비밀번호<input id="password" type="password" autocomplete="current-password" required></label><button type="submit">로그인</button></form>
+      <p id="loginMessage" class="message"></p>
+    </section>
+
+    <section id="editorPanel" class="editor hidden">
+      <div class="editor-top"><div><p class="kicker">FIELD NOTE EDITOR</p><h1>현장사례 작성</h1></div><div class="top-actions"><button id="resetButton" class="secondary" type="button">새 글</button><button id="logoutButton" class="ghost" type="button">로그아웃</button></div></div>
+      <div id="setupWarning" class="warning hidden"></div>
+      <form id="caseForm">
+        <input id="originalPath" type="hidden">
+        <section class="panel"><h2>기본 정보</h2><div class="grid cols-2">
+          <label>게시일<input id="date" type="date" required></label>
+          <label>서비스<select id="service" required><option value="toilet-clog">변기막힘</option><option value="sink-clog">싱크대막힘</option><option value="drain-clog">하수구막힘</option><option value="high-pressure-cleaning">고압세척</option><option value="leak-detection">누수탐지</option><option value="pipe-work">배관공사</option><option value="odor">하수구악취</option></select></label>
+          <label>구(예: 강남구)<input id="district" required placeholder="강남구"></label>
+          <label>동(예: 역삼동)<input id="neighborhood" required placeholder="역삼동"></label>
+          <label class="wide">제목<input id="title" required maxlength="80" placeholder="역삼동 변기막힘, 석션 후 변기 탈거로 해결"></label>
+          <label class="wide">한 줄 요약<textarea id="summary" rows="2" maxlength="180" required placeholder="현장 증상과 핵심 해결 과정을 한 문장으로 적어주세요."></textarea></label>
+        </div></section>
+
+        <section class="panel"><h2>현장 내용</h2><div class="grid cols-2">
+          <label>증상<input id="symptom" required placeholder="물이 차오르고 천천히 내려감"></label>
+          <label>원인<input id="cause" required placeholder="변기 내부에 엉킨 채소류 이물질"></label>
+          <label>사용 장비<input id="equipment" required placeholder="석션기·배관내시경·에어건"></label>
+          <label>최종 조치<input id="result" required placeholder="변기 탈거 후 역방향 관통 및 정상 배수 확인"></label>
+          <label class="wide">현장 도착 및 진단<textarea id="intro" rows="5" required placeholder="고객이 처음 겪은 증상, 사용 중단 안내, 현장 도착 후 확인한 내용을 적어주세요."></textarea></label>
+          <label class="wide">1단계 작업<textarea id="step1" rows="5" required placeholder="첫 번째 사진과 연결되는 점검·작업 과정을 적어주세요."></textarea></label>
+          <label class="wide">2단계 작업<textarea id="step2" rows="5" required placeholder="두 번째 사진과 연결되는 해결·검수 과정을 적어주세요."></textarea></label>
+          <label class="wide">작업 결과 및 재발 방지<textarea id="closing" rows="5" required placeholder="정상 배수 확인, 고객 안내, 재발 방지 요령을 적어주세요."></textarea></label>
+        </div></section>
+
+        <section class="panel"><h2>실사진 2장</h2><p class="help">업로드 시 긴 변 1600px 이하의 WebP로 자동 변환됩니다. 첫 번째 사진이 목록 대표사진입니다.</p><div class="photos">
+          <label class="photo-box"><span>사진 1 · 진단/작업 전</span><input id="photo1" type="file" accept="image/jpeg,image/png,image/webp" required><img id="preview1" alt="사진 1 미리보기"><input id="caption1" placeholder="사진 설명" required></label>
+          <label class="photo-box"><span>사진 2 · 작업/완료</span><input id="photo2" type="file" accept="image/jpeg,image/png,image/webp" required><img id="preview2" alt="사진 2 미리보기"><input id="caption2" placeholder="사진 설명" required></label>
+        </div></section>
+
+        <section class="panel seo-panel"><h2>자동 생성 항목</h2><ul><li>SEO 제목·설명·canonical·OG·Article 구조화 데이터</li><li>지역명과 서비스가 포함된 주소·제목·이미지 파일명·ALT</li><li>사전 비용 확인·추가 비용·변기 탈거 가능성·A/S 안내</li><li>관련 지역 링크·상담 배너·현장기록 목록·사이트맵</li></ul></section>
+        <div class="publish-bar"><p id="publishMessage" class="message"></p><button id="publishButton" type="submit">현장사례 게시하기</button></div>
+      </form>
+
+      <section class="panel recent"><div class="section-head"><h2>관리자에서 게시한 사례</h2><button id="reloadButton" class="secondary" type="button">새로고침</button></div><div id="caseList" class="case-list"><p>불러오는 중…</p></div></section>
+    </section>
+  </main>
+  <script src="./app.js" defer></script>
+</body></html>

@@ -5748,13 +5748,9 @@
               </div>
             </article>
           </div>
-          <div
-            class="field-notes-more"
-            style="display: flex; justify-content: center; margin: 26px 0 8px"
-          >
+          <div class="field-notes-more">
             <a
               href="./field-notes/index.html"
-              style="display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 26px; border: 1.5px solid #172033; border-radius: 999px; background: #ffffff; color: #172033; font-size: 15px; font-weight: 800; line-height: 1; text-decoration: none; box-shadow: 0 8px 20px rgba(23, 32, 51, 0.08)"
               >신라건축설비 현장기록 더보기&nbsp;→</a
             >
           </div>
@@ -6609,6 +6605,46 @@
   }
   .real-work-card .work-body {
     color: #111827 !important;
+  }
+</style>
+
+<style>
+  /* 현장기록 진입 버튼: 과하지 않은 반복 강조 */
+  .field-notes-more {
+    display: flex;
+    justify-content: center;
+    margin: 26px 0 8px;
+  }
+  .field-notes-more a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0 26px;
+    border: 1.5px solid #0b2f5b;
+    border-radius: 999px;
+    background: #fff;
+    color: #0b2f5b;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1;
+    text-decoration: none;
+    box-shadow: 0 8px 20px rgba(11, 47, 91, 0.12);
+    animation: field-notes-pulse 2.8s ease-in-out infinite;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  }
+  .field-notes-more a:hover,
+  .field-notes-more a:focus-visible {
+    background: #0b2f5b;
+    color: #fff;
+    transform: translateY(-2px);
+  }
+  @keyframes field-notes-pulse {
+    0%, 70%, 100% { transform: scale(1); box-shadow: 0 8px 20px rgba(11, 47, 91, 0.12); }
+    82% { transform: scale(1.035); box-shadow: 0 8px 28px rgba(18, 103, 204, 0.34), 0 0 0 7px rgba(18, 103, 204, 0.08); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .field-notes-more a { animation: none; }
   }
 </style>
 

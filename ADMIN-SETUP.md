@@ -10,10 +10,9 @@ Vercel 프로젝트의 **Settings → Environment Variables**에서 아래 값�
 - `GITHUB_TOKEN`: GitHub Fine-grained personal access token
 - `GITHUB_REPO`: `저장소소유자/저장소이름` 형식 (예: `ldhzack82/shilla-plumbing`)
 - `GITHUB_BRANCH`: `main`
-- `OPENAI_API_KEY`: 관리자 AI SEO 원고 생성에 사용할 OpenAI API 키
-- `OPENAI_MODEL`: 선택사항. 비워두면 `gpt-5.6` 사용
+- OpenAI API 키는 필요하지 않습니다. 관리자 화면의 `알렉스 원고 한 번에 붙여넣기` 기능은 브라우저에서 원고를 각 입력칸으로 분배합니다.
 - `GOOGLE_MAP_CID`: 선택사항. Google 비즈니스 프로필 CID 숫자
-- `GOOGLE_REVIEW_URL`: 선택사항. Google 비즈니스 프로필의 직접 리뷰 작성 링크
+- `GOOGLE_REVIEW_URL`: 선택사항. 비워두면 신라건축설비 직접 리뷰 링크 사용
 
 환경변수를 저장한 뒤 **Deployments → 최신 배포 → Redeploy**를 한 번 실행합니다.
 

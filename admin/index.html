@@ -51,9 +51,9 @@
           <label class="wide">작업 결과 및 재발 방지<textarea id="closing" rows="5" required placeholder="정상 배수 확인, 고객 안내, 재발 방지 요령을 적어주세요."></textarea></label>
         </div></section>
 
-        <section class="panel"><h2>실사진 2장</h2><p class="help">업로드 시 긴 변 1600px 이하의 WebP로 자동 변환됩니다. 첫 번째 사진이 목록 대표사진입니다.</p><div class="photos">
-          <label class="photo-box"><span>사진 1 · 진단/작업 전</span><input id="photo1" type="file" accept="image/jpeg,image/png,image/webp" required><img id="preview1" alt="사진 1 미리보기"><input id="caption1" placeholder="사진 설명" required></label>
-          <label class="photo-box"><span>사진 2 · 작업/완료</span><input id="photo2" type="file" accept="image/jpeg,image/png,image/webp" required><img id="preview2" alt="사진 2 미리보기"><input id="caption2" placeholder="사진 설명" required></label>
+        <section class="panel"><h2>실사진 2장</h2><p class="help">업로드 시 긴 변 1600px 이하의 WebP로 자동 변환됩니다. 아래에서 목록·검색·공유에 사용할 대표사진을 선택하세요.</p><div class="photos">
+          <div class="photo-box"><label><span>사진 1 · 진단/작업 전</span><input id="photo1" type="file" accept="image/jpeg,image/png,image/webp" required></label><img id="preview1" alt="사진 1 미리보기"><label><span>사진 1 설명</span><input id="caption1" placeholder="사진 설명" required></label><label class="thumbnail-choice"><input type="radio" name="thumbnailIndex" value="0" checked><span>사진 1을 대표사진으로</span></label></div>
+          <div class="photo-box"><label><span>사진 2 · 작업/완료</span><input id="photo2" type="file" accept="image/jpeg,image/png,image/webp" required></label><img id="preview2" alt="사진 2 미리보기"><label><span>사진 2 설명</span><input id="caption2" placeholder="사진 설명" required></label><label class="thumbnail-choice"><input type="radio" name="thumbnailIndex" value="1"><span>사진 2를 대표사진으로</span></label></div>
         </div></section>
 
         <section class="panel seo-panel"><h2>자동 생성 항목</h2><ul><li>SEO 제목·설명·canonical·OG·Article·Plumber 구조화 데이터</li><li>서울 25개 구·경기도 31개 시군 출동지역과 지역 키워드</li><li>Google 지도·리뷰·주소·24시간 영업·길찾기·대표번호</li><li>현장기록 목록·사이트맵·RSS 갱신과 IndexNow 알림</li></ul></section>

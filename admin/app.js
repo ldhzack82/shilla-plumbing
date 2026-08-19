@@ -1,15 +1,135 @@
-const $=id=>document.getElementById(id);const state={password:sessionStorage.getItem('shillaAdminPassword')||'',cases:[],editing:null,oldPhotos:null};
-const fields=['date','service','district','neighborhood','title','summary','symptom','cause','equipment','result','intro','step1','step2','closing','caption1','caption2'];
-const serviceNames={'toilet-clog':'변기막힘','sink-clog':'싱크대막힘','drain-clog':'하수구막힘','high-pressure-cleaning':'고압세척','leak-detection':'누수탐지','pipe-work':'배관공사','odor':'하수구악취'};
-function message(el,text,type=''){el.textContent=text;el.className=`message ${type}`}
-async function api(action,data={}){const res=await fetch('/api/admin',{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':state.password},body:JSON.stringify({action,...data})});const json=await res.json().catch(()=>({error:'서버 응답을 읽을 수 없습니다.'}));if(!res.ok)throw new Error(json.error||'요청에 실패했습니다.');return json}
-async function login(password){state.password=password;const data=await api('status');sessionStorage.setItem('shillaAdminPassword',password);$('loginPanel').classList.add('hidden');$('editorPanel').classList.remove('hidden');const warnings=[];if(data.setupMissing?.length)warnings.push(`Vercel 환경변수 설정이 필요합니다: ${data.setupMissing.join(', ')}`);if(warnings.length){$('setupWarning').classList.remove('hidden');$('setupWarning').textContent=warnings.join(' · ')}$('date').valueAsDate=new Date();await loadCases()}
-$('loginForm').addEventListener('submit',async e=>{e.preventDefault();message($('loginMessage'),'확인 중…');try{await login($('password').value);message($('loginMessage'),'')}catch(err){state.password='';message($('loginMessage'),err.message,'error')}});
-$('logoutButton').onclick=()=>{sessionStorage.removeItem('shillaAdminPassword');location.reload()};
-function resetForm(){state.editing=null;state.oldPhotos=null;$('caseForm').reset();$('date').valueAsDate=new Date();$('originalPath').value='';$('photo1').required=true;$('photo2').required=true;for(const id of ['preview1','preview2'])$(id).removeAttribute('src');message($('publishMessage'),'')}
-$('resetButton').onclick=resetForm;
-const draftLabels={'게시일':'date','날짜':'date','서비스':'service','구':'district','지역구':'district','동':'neighborhood','동네':'neighborhood','제목':'title','한 줄 요약':'summary','한줄 요약':'summary','요약':'summary','증상':'symptom','원인':'cause','사용 장비':'equipment','장비':'equipment','최종 조치':'result','현장 도착 및 진단':'intro','현장 진단':'intro','1단계 작업':'step1','1단계':'step1','2단계 작업':'step2','2단계':'step2','작업 결과 및 재발 방지':'closing','작업 결과':'closing','사진 1 설명':'caption1','사진1 설명':'caption1','사진 2 설명':'caption2','사진2 설명':'caption2'};
-const draftTemplate=`[게시일] YYYY-MM-DD
+const $ = (id) => document.getElementById(id);
+const state = {
+  password: sessionStorage.getItem("shillaAdminPassword") || "",
+  cases: [],
+  editing: null,
+  oldPhotos: null,
+};
+const fields = [
+  "date",
+  "service",
+  "district",
+  "neighborhood",
+  "title",
+  "summary",
+  "symptom",
+  "cause",
+  "equipment",
+  "result",
+  "intro",
+  "step1",
+  "step2",
+  "closing",
+  "caption1",
+  "caption2",
+];
+const serviceNames = {
+  "toilet-clog": "변기막힘",
+  "sink-clog": "싱크대막힘",
+  "drain-clog": "하수구막힘",
+  "high-pressure-cleaning": "고압세척",
+  "leak-detection": "누수탐지",
+  "pipe-work": "배관공사",
+  odor: "하수구악취",
+};
+function message(el, text, type = "") {
+  el.textContent = text;
+  el.className = `message ${type}`;
+}
+async function api(action, data = {}) {
+  const res = await fetch("/api/admin", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Admin-Password": state.password,
+    },
+    body: JSON.stringify({ action, ...data }),
+  });
+  const json = await res
+    .json()
+    .catch(() => ({ error: "서버 응답을 읽을 수 없습니다." }));
+  if (!res.ok) throw new Error(json.error || "요청에 실패했습니다.");
+  return json;
+}
+async function login(password) {
+  state.password = password;
+  const data = await api("status");
+  sessionStorage.setItem("shillaAdminPassword", password);
+  $("loginPanel").classList.add("hidden");
+  $("editorPanel").classList.remove("hidden");
+  const warnings = [];
+  if (data.setupMissing?.length)
+    warnings.push(
+      `Vercel 환경변수 설정이 필요합니다: ${data.setupMissing.join(", ")}`,
+    );
+  if (warnings.length) {
+    $("setupWarning").classList.remove("hidden");
+    $("setupWarning").textContent = warnings.join(" · ");
+  }
+  $("date").valueAsDate = new Date();
+  await loadCases();
+}
+$("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  message($("loginMessage"), "확인 중…");
+  try {
+    await login($("password").value);
+    message($("loginMessage"), "");
+  } catch (err) {
+    state.password = "";
+    message($("loginMessage"), err.message, "error");
+  }
+});
+$("logoutButton").onclick = () => {
+  sessionStorage.removeItem("shillaAdminPassword");
+  location.reload();
+};
+function resetForm() {
+  state.editing = null;
+  state.oldPhotos = null;
+  $("caseForm").reset();
+  $("date").valueAsDate = new Date();
+  $("originalPath").value = "";
+  $("photo1").required = true;
+  $("photo2").required = true;
+  document.querySelector(
+    'input[name="thumbnailIndex"][value="0"]',
+  ).checked = true;
+  for (const id of ["preview1", "preview2"]) $(id).removeAttribute("src");
+  message($("publishMessage"), "");
+}
+$("resetButton").onclick = resetForm;
+const draftLabels = {
+  게시일: "date",
+  날짜: "date",
+  서비스: "service",
+  구: "district",
+  지역구: "district",
+  동: "neighborhood",
+  동네: "neighborhood",
+  제목: "title",
+  "한 줄 요약": "summary",
+  "한줄 요약": "summary",
+  요약: "summary",
+  증상: "symptom",
+  원인: "cause",
+  "사용 장비": "equipment",
+  장비: "equipment",
+  "최종 조치": "result",
+  "현장 도착 및 진단": "intro",
+  "현장 진단": "intro",
+  "1단계 작업": "step1",
+  "1단계": "step1",
+  "2단계 작업": "step2",
+  "2단계": "step2",
+  "작업 결과 및 재발 방지": "closing",
+  "작업 결과": "closing",
+  "사진 1 설명": "caption1",
+  "사진1 설명": "caption1",
+  "사진 2 설명": "caption2",
+  "사진2 설명": "caption2",
+};
+const draftTemplate = `[게시일] YYYY-MM-DD
 [서비스] 변기막힘
 [구] 강남구
 [동] 역삼동
@@ -25,18 +145,261 @@ const draftTemplate=`[게시일] YYYY-MM-DD
 [작업 결과 및 재발 방지]
 [사진 1 설명]
 [사진 2 설명]`;
-function parseDraft(raw){const out={};let current='';for(const original of String(raw||'').replace(/\r/g,'').split('\n')){const line=original.trimEnd(),m=line.match(/^\s*(?:\[([^\]]+)\]|([^:\：]{1,30})\s*[:：])\s*(.*)$/);if(m){const label=(m[1]||m[2]||'').trim(),id=draftLabels[label];if(id){current=id;out[id]=(m[3]||'').trim();continue}}if(current&&line.trim())out[current]=`${out[current]}${out[current]?'\n':''}${line.trim()}`}return out}
-function normalizeService(value){const cleaned=String(value||'').replace(/\s/g,'');const found=Object.entries(serviceNames).find(([key,name])=>key===cleaned||name===cleaned);return found?.[0]||''}
-$('copyTemplateButton').onclick=async()=>{try{await navigator.clipboard.writeText(draftTemplate);message($('draftMessage'),'알렉스에게 전달할 원고 양식을 복사했습니다.','success')}catch{message($('draftMessage'),'복사하지 못했습니다. 위 예시 형식을 사용해주세요.','error')}};
-$('applyDraftButton').onclick=()=>{const parsed=parseDraft($('draftPaste').value),recognized=Object.keys(parsed);if(!recognized.length)return message($('draftMessage'),'항목명이 포함된 원고 패키지를 붙여넣어 주세요.','error');if(parsed.service){const service=normalizeService(parsed.service);if(!service)return message($('draftMessage'),`지원하지 않는 서비스입니다: ${parsed.service}`,'error');parsed.service=service}for(const [id,value] of Object.entries(parsed))if($(id)&&value)$(id).value=value;const required=['service','district','neighborhood','title','summary','symptom','cause','equipment','result','intro','step1','step2','closing','caption1','caption2'],missing=required.filter(id=>!$(id).value.trim());message($('draftMessage'),missing.length?`${recognized.length}개 항목을 적용했습니다. 비어 있는 항목 ${missing.length}개를 확인해주세요.`:`${recognized.length}개 항목을 모두 적용했습니다. 사진 2장을 넣고 게시 전 사실관계만 확인하세요.`,'success');$('title').scrollIntoView({behavior:'smooth',block:'center'})};
-async function loadCases(){try{const data=await api('list');state.cases=data.cases||[];renderCases()}catch(err){$('caseList').innerHTML=`<p class="message error">${escapeHtml(err.message)}</p>`}}
-$('reloadButton').onclick=loadCases;
-function renderCases(){$('caseList').innerHTML=state.cases.length?state.cases.map((c,i)=>`<div class="case-item"><div><strong>${escapeHtml(c.title)}</strong><small>${escapeHtml(c.district)} ${escapeHtml(c.neighborhood)} · ${escapeHtml(serviceNames[c.service]||c.service)} · ${escapeHtml(c.date)}</small></div><div class="case-actions"><button class="secondary" type="button" data-edit="${i}">수정</button><a href="/${c.path}/" target="_blank" rel="noopener">보기</a><button class="danger" type="button" data-delete="${i}">삭제</button></div></div>`).join(''):'<p class="message">관리자에서 게시한 사례가 아직 없습니다.</p>'}
-$('caseList').addEventListener('click',async e=>{const edit=e.target.dataset.edit,del=e.target.dataset.delete;if(edit!==undefined)editCase(state.cases[Number(edit)]);if(del!==undefined)await deleteCase(state.cases[Number(del)])});
-function editCase(c){state.editing=c.path;state.oldPhotos=c.photos;for(const id of fields)if($(id)&&c[id]!=null)$(id).value=c[id];$('originalPath').value=c.path;$('photo1').required=false;$('photo2').required=false;scrollTo({top:0,behavior:'smooth'});message($('publishMessage'),'기존 사례 수정 중')}
-async function deleteCase(c){if(!confirm(`“${c.title}” 사례를 삭제할까요?\nGitHub와 홈페이지에서 제거됩니다.`))return;try{await api('delete',{path:c.path});setTimeout(()=>api('indexnow',{urls:[`${location.origin}/${c.path}/`,`${location.origin}/sitemap.xml`,`${location.origin}/rss.xml`]}).catch(()=>{}),90000);await loadCases()}catch(err){alert(err.message)}}
-for(const n of [1,2])$(`photo${n}`).addEventListener('change',async e=>{const file=e.target.files[0];if(file)$(`preview${n}`).src=URL.createObjectURL(file)});
-async function imageData(file){if(!file)return null;const bitmap=await createImageBitmap(file);const max=1600,scale=Math.min(1,max/Math.max(bitmap.width,bitmap.height));const canvas=document.createElement('canvas');canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);let blob=await new Promise(r=>canvas.toBlob(r,'image/webp',.82));if(!blob)throw new Error('사진 변환에 실패했습니다.');if(blob.size>1450*1024)blob=await new Promise(r=>canvas.toBlob(r,'image/webp',.68));return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve({data:reader.result.split(',')[1],width:canvas.width,height:canvas.height});reader.onerror=reject;reader.readAsDataURL(blob)})}
-$('caseForm').addEventListener('submit',async e=>{e.preventDefault();const btn=$('publishButton');btn.disabled=true;message($('publishMessage'),'사진 최적화 및 게시 준비 중…');try{const form=Object.fromEntries(fields.filter(id=>$(id)).map(id=>[id,$(id).value.trim()]));const [image1,image2]=await Promise.all([imageData($('photo1').files[0]),imageData($('photo2').files[0])]);if(!image1&&!state.oldPhotos?.[0])throw new Error('사진 1을 선택해주세요.');if(!image2&&!state.oldPhotos?.[1])throw new Error('사진 2를 선택해주세요.');message($('publishMessage'),'GitHub에 게시 중…');const out=await api('publish',{caseData:{...form,originalPath:$('originalPath').value,images:[image1,image2],oldPhotos:state.oldPhotos}});const publishedUrl=`${location.origin}/${out.path}/`;resetForm();message($('publishMessage'),`게시 완료! 약 1~2분 후 홈페이지에 반영됩니다. (${out.path})`,'success');setTimeout(()=>api('indexnow',{urls:[publishedUrl,`${location.origin}/sitemap.xml`,`${location.origin}/rss.xml`]}).catch(()=>{}),90000);await loadCases()}catch(err){message($('publishMessage'),err.message,'error')}finally{btn.disabled=false}});
-function escapeHtml(v=''){return String(v).replace(/[&<>'"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]))}
-if(state.password)login(state.password).catch(()=>{state.password='';sessionStorage.removeItem('shillaAdminPassword')});
+function parseDraft(raw) {
+  const out = {};
+  let current = "";
+  for (const original of String(raw || "")
+    .replace(/\r/g, "")
+    .split("\n")) {
+    const line = original.trimEnd(),
+      m = line.match(/^\s*(?:\[([^\]]+)\]|([^:\：]{1,30})\s*[:：])\s*(.*)$/);
+    if (m) {
+      const label = (m[1] || m[2] || "").trim(),
+        id = draftLabels[label];
+      if (id) {
+        current = id;
+        out[id] = (m[3] || "").trim();
+        continue;
+      }
+    }
+    if (current && line.trim())
+      out[current] = `${out[current]}${out[current] ? "\n" : ""}${line.trim()}`;
+  }
+  return out;
+}
+function normalizeService(value) {
+  const cleaned = String(value || "").replace(/\s/g, "");
+  const found = Object.entries(serviceNames).find(
+    ([key, name]) => key === cleaned || name === cleaned,
+  );
+  return found?.[0] || "";
+}
+$("copyTemplateButton").onclick = async () => {
+  try {
+    await navigator.clipboard.writeText(draftTemplate);
+    message(
+      $("draftMessage"),
+      "알렉스에게 전달할 원고 양식을 복사했습니다.",
+      "success",
+    );
+  } catch {
+    message(
+      $("draftMessage"),
+      "복사하지 못했습니다. 위 예시 형식을 사용해주세요.",
+      "error",
+    );
+  }
+};
+$("applyDraftButton").onclick = () => {
+  const parsed = parseDraft($("draftPaste").value),
+    recognized = Object.keys(parsed);
+  if (!recognized.length)
+    return message(
+      $("draftMessage"),
+      "항목명이 포함된 원고 패키지를 붙여넣어 주세요.",
+      "error",
+    );
+  if (parsed.service) {
+    const service = normalizeService(parsed.service);
+    if (!service)
+      return message(
+        $("draftMessage"),
+        `지원하지 않는 서비스입니다: ${parsed.service}`,
+        "error",
+      );
+    parsed.service = service;
+  }
+  for (const [id, value] of Object.entries(parsed))
+    if ($(id) && value) $(id).value = value;
+  const required = [
+      "service",
+      "district",
+      "neighborhood",
+      "title",
+      "summary",
+      "symptom",
+      "cause",
+      "equipment",
+      "result",
+      "intro",
+      "step1",
+      "step2",
+      "closing",
+      "caption1",
+      "caption2",
+    ],
+    missing = required.filter((id) => !$(id).value.trim());
+  message(
+    $("draftMessage"),
+    missing.length
+      ? `${recognized.length}개 항목을 적용했습니다. 비어 있는 항목 ${missing.length}개를 확인해주세요.`
+      : `${recognized.length}개 항목을 모두 적용했습니다. 사진 2장을 넣고 게시 전 사실관계만 확인하세요.`,
+    "success",
+  );
+  $("title").scrollIntoView({ behavior: "smooth", block: "center" });
+};
+async function loadCases() {
+  try {
+    const data = await api("list");
+    state.cases = data.cases || [];
+    renderCases();
+  } catch (err) {
+    $("caseList").innerHTML =
+      `<p class="message error">${escapeHtml(err.message)}</p>`;
+  }
+}
+$("reloadButton").onclick = loadCases;
+function renderCases() {
+  $("caseList").innerHTML = state.cases.length
+    ? state.cases
+        .map(
+          (c, i) =>
+            `<div class="case-item"><div><strong>${escapeHtml(c.title)}</strong><small>${escapeHtml(c.district)} ${escapeHtml(c.neighborhood)} · ${escapeHtml(serviceNames[c.service] || c.service)} · ${escapeHtml(c.date)}</small></div><div class="case-actions"><button class="secondary" type="button" data-edit="${i}">수정</button><a href="/${c.path}/" target="_blank" rel="noopener">보기</a><button class="danger" type="button" data-delete="${i}">삭제</button></div></div>`,
+        )
+        .join("")
+    : '<p class="message">관리자에서 게시한 사례가 아직 없습니다.</p>';
+}
+$("caseList").addEventListener("click", async (e) => {
+  const edit = e.target.dataset.edit,
+    del = e.target.dataset.delete;
+  if (edit !== undefined) editCase(state.cases[Number(edit)]);
+  if (del !== undefined) await deleteCase(state.cases[Number(del)]);
+});
+function editCase(c) {
+  state.editing = c.path;
+  state.oldPhotos = c.photos;
+  for (const id of fields) if ($(id) && c[id] != null) $(id).value = c[id];
+  $("originalPath").value = c.path;
+  $("photo1").required = false;
+  $("photo2").required = false;
+  const thumb = document.querySelector(
+    `input[name="thumbnailIndex"][value="${Number(c.thumbnailIndex) === 1 ? 1 : 0}"]`,
+  );
+  if (thumb) thumb.checked = true;
+  scrollTo({ top: 0, behavior: "smooth" });
+  message($("publishMessage"), "기존 사례 수정 중");
+}
+async function deleteCase(c) {
+  if (
+    !confirm(
+      `“${c.title}” 사례를 삭제할까요?\nGitHub와 홈페이지에서 제거됩니다.`,
+    )
+  )
+    return;
+  try {
+    await api("delete", { path: c.path });
+    setTimeout(
+      () =>
+        api("indexnow", {
+          urls: [
+            `${location.origin}/${c.path}/`,
+            `${location.origin}/sitemap.xml`,
+            `${location.origin}/rss.xml`,
+          ],
+        }).catch(() => {}),
+      90000,
+    );
+    await loadCases();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+for (const n of [1, 2])
+  $(`photo${n}`).addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (file) $(`preview${n}`).src = URL.createObjectURL(file);
+  });
+async function imageData(file) {
+  if (!file) return null;
+  const bitmap = await createImageBitmap(file);
+  const max = 1600,
+    scale = Math.min(1, max / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  let blob = await new Promise((r) => canvas.toBlob(r, "image/webp", 0.82));
+  if (!blob) throw new Error("사진 변환에 실패했습니다.");
+  if (blob.size > 1450 * 1024)
+    blob = await new Promise((r) => canvas.toBlob(r, "image/webp", 0.68));
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () =>
+      resolve({
+        data: reader.result.split(",")[1],
+        width: canvas.width,
+        height: canvas.height,
+      });
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+$("caseForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = $("publishButton");
+  btn.disabled = true;
+  message($("publishMessage"), "사진 최적화 및 게시 준비 중…");
+  try {
+    const form = Object.fromEntries(
+      fields.filter((id) => $(id)).map((id) => [id, $(id).value.trim()]),
+    );
+    form.thumbnailIndex = Number(
+      document.querySelector('input[name="thumbnailIndex"]:checked')?.value ||
+        0,
+    );
+    const [image1, image2] = await Promise.all([
+      imageData($("photo1").files[0]),
+      imageData($("photo2").files[0]),
+    ]);
+    if (!image1 && !state.oldPhotos?.[0])
+      throw new Error("사진 1을 선택해주세요.");
+    if (!image2 && !state.oldPhotos?.[1])
+      throw new Error("사진 2를 선택해주세요.");
+    message($("publishMessage"), "GitHub에 게시 중…");
+    const out = await api("publish", {
+      caseData: {
+        ...form,
+        originalPath: $("originalPath").value,
+        images: [image1, image2],
+        oldPhotos: state.oldPhotos,
+      },
+    });
+    const publishedUrl = `${location.origin}/${out.path}/`;
+    resetForm();
+    message(
+      $("publishMessage"),
+      `게시 완료! 약 1~2분 후 홈페이지에 반영됩니다. (${out.path})`,
+      "success",
+    );
+    setTimeout(
+      () =>
+        api("indexnow", {
+          urls: [
+            publishedUrl,
+            `${location.origin}/sitemap.xml`,
+            `${location.origin}/rss.xml`,
+          ],
+        }).catch(() => {}),
+      90000,
+    );
+    await loadCases();
+  } catch (err) {
+    message($("publishMessage"), err.message, "error");
+  } finally {
+    btn.disabled = false;
+  }
+});
+function escapeHtml(v = "") {
+  return String(v).replace(
+    /[&<>'"]/g,
+    (s) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[
+        s
+      ],
+  );
+}
+if (state.password)
+  login(state.password).catch(() => {
+    state.password = "";
+    sessionStorage.removeItem("shillaAdminPassword");
+  });

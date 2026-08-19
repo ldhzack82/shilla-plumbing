@@ -6,6 +6,7 @@
   <meta name="robots" content="noindex,nofollow">
   <title>신라건축설비 현장사례 관리자</title>
   <link rel="stylesheet" href="./styles.css">
+  <style>.ai-panel{border-color:#b9d3fb;background:linear-gradient(145deg,#fff 0%,#f5f9ff 100%)}.ai-head{margin-bottom:12px}.ai-head h2{margin-bottom:0}.ai-badge{padding:7px 10px;border-radius:999px;background:#e3efff;color:#0b5bd3;font-size:12px;font-weight:800}.ai-actions{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:16px}.ai-actions button{white-space:nowrap}@media(max-width:720px){.ai-actions{align-items:stretch;flex-direction:column}.ai-actions button{width:100%}}</style>
 </head>
 <body>
   <header class="admin-head"><div><strong>신라건축설비</strong><span>현장사례 관리자</span></div><a href="/field-notes/" target="_blank" rel="noopener">게시판 보기</a></header>
@@ -31,6 +32,13 @@
           <label class="wide">한 줄 요약<textarea id="summary" rows="2" maxlength="180" required placeholder="현장 증상과 핵심 해결 과정을 한 문장으로 적어주세요."></textarea></label>
         </div></section>
 
+        <section class="panel ai-panel">
+          <div class="section-head ai-head"><div><p class="kicker">AI SEO WRITER</p><h2>현장 메모를 SEO 원고로 확장</h2></div><span class="ai-badge">게시 전 검토</span></div>
+          <p class="help">지역과 서비스를 먼저 선택한 뒤, 실제 현장에서 확인한 사실만 편하게 적어주세요. AI가 제목·요약·진단·작업 단계·결과·사진 설명을 채웁니다.</p>
+          <label>현장 메모<textarea id="aiNotes" rows="7" placeholder="예) 반포동 아파트. 샤워 후 빗을 변기에 빠뜨림. 물은 내려가지만 매우 느림. 석션 실패 후 변기 탈거, 하부에서 에어건으로 밀어 빗과 휴지 뭉치 제거. 오수관 이상 없음."></textarea></label>
+          <div class="ai-actions"><p id="aiMessage" class="message">AI가 없는 사실을 만들지 않도록 입력한 현장 정보만 사용합니다.</p><button id="aiGenerateButton" type="button">AI SEO 원고 생성</button></div>
+        </section>
+
         <section class="panel"><h2>현장 내용</h2><div class="grid cols-2">
           <label>증상<input id="symptom" required placeholder="물이 차오르고 천천히 내려감"></label>
           <label>원인<input id="cause" required placeholder="변기 내부에 엉킨 채소류 이물질"></label>
@@ -47,7 +55,7 @@
           <label class="photo-box"><span>사진 2 · 작업/완료</span><input id="photo2" type="file" accept="image/jpeg,image/png,image/webp" required><img id="preview2" alt="사진 2 미리보기"><input id="caption2" placeholder="사진 설명" required></label>
         </div></section>
 
-        <section class="panel seo-panel"><h2>자동 생성 항목</h2><ul><li>SEO 제목·설명·canonical·OG·Article 구조화 데이터</li><li>지역명과 서비스가 포함된 주소·제목·이미지 파일명·ALT</li><li>사전 비용 확인·추가 비용·변기 탈거 가능성·A/S 안내</li><li>관련 지역 링크·상담 배너·현장기록 목록·사이트맵</li></ul></section>
+        <section class="panel seo-panel"><h2>자동 생성 항목</h2><ul><li>SEO 제목·설명·canonical·OG·Article·Plumber 구조화 데이터</li><li>서울 25개 구·경기도 31개 시군 출동지역과 지역 키워드</li><li>Google 지도·리뷰·주소·24시간 영업·길찾기·대표번호</li><li>현장기록 목록·사이트맵·RSS 갱신과 IndexNow 알림</li></ul></section>
         <div class="publish-bar"><p id="publishMessage" class="message"></p><button id="publishButton" type="submit">현장사례 게시하기</button></div>
       </form>
 

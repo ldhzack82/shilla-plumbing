@@ -17,7 +17,8 @@ img{display:block;max-width:100%;height:auto}
 .page-title p{margin:0;color:var(--muted)}
 .board-tools{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 0 14px;border-bottom:2px solid var(--navy)}
 .filters{display:flex;flex-wrap:wrap;gap:8px}
-.filter{padding:7px 13px;border:1px solid var(--line);border-radius:999px;color:#4d5b6d;font-size:13px;font-weight:800}
+.filter{padding:7px 13px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#4d5b6d;font:inherit;font-size:13px;font-weight:800;line-height:1.75;cursor:pointer;white-space:nowrap;transition:background-color .18s ease,border-color .18s ease,color .18s ease,transform .18s ease}
+.filter:hover,.filter:focus-visible{border-color:var(--blue);color:var(--blue);transform:translateY(-1px)}
 .filter.active{border-color:var(--navy);background:var(--navy);color:#fff}
 .board-count{color:var(--muted);font-size:13px}
 .board-list{padding:0 0 70px}
@@ -33,6 +34,7 @@ img{display:block;max-width:100%;height:auto}
 .pagination{display:flex;justify-content:center;gap:6px;padding-top:28px}
 .pagination span{display:grid;width:38px;height:38px;place-items:center;border:1px solid var(--line);border-radius:8px;font-size:13px;font-weight:800}
 .pagination .current{border-color:var(--navy);background:var(--navy);color:#fff}
+.filter-empty{padding:54px 20px;text-align:center;color:var(--muted);font-weight:800}
 .hero{padding:72px 0 54px;background:linear-gradient(145deg,#071f42,#124f91);color:#fff}
 .hero .eyebrow{color:#b9d7fa}
 .hero h1{max-width:800px;margin:0;font-size:clamp(30px,5vw,48px);line-height:1.22;letter-spacing:-.04em}
@@ -78,6 +80,7 @@ img{display:block;max-width:100%;height:auto}
 .wrap{width:min(100% - 28px,1080px)}
 .page-title{padding:30px 0 16px}
 .board-tools{align-items:flex-start;flex-direction:column}
+.filters{width:100%;flex-wrap:nowrap;overflow-x:auto;padding:2px 0 7px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.filters::-webkit-scrollbar{display:none}
 .board-row>a{grid-template-columns:96px minmax(0,1fr);gap:13px;padding:15px 0}
 .board-thumb{width:96px}
 .board-title{margin-bottom:3px;font-size:16px}

@@ -27,7 +27,7 @@
         <section class="panel"><h2>기본 정보</h2><div class="grid cols-2">
           <label>게시일<input id="date" type="date" required></label>
           <label>서비스<select id="service" required><option value="toilet-clog">변기막힘</option><option value="sink-clog">싱크대막힘</option><option value="drain-clog">하수구막힘</option><option value="high-pressure-cleaning">고압세척</option><option value="leak-detection">누수탐지</option><option value="pipe-work">배관공사</option><option value="odor">하수구악취</option></select></label>
-          <label>구(예: 강남구)<input id="district" required placeholder="강남구"></label>
+          <label>시·군·구(예: 강남구, 평택시)<input id="district" required placeholder="강남구 또는 평택시"></label>
           <label>동(예: 역삼동)<input id="neighborhood" required placeholder="역삼동"></label>
           <label class="wide">제목<input id="title" required maxlength="80" placeholder="역삼동 변기막힘, 석션 후 변기 탈거로 해결"></label>
           <label class="wide">한 줄 요약<textarea id="summary" rows="2" maxlength="180" required placeholder="현장 증상과 핵심 해결 과정을 한 문장으로 적어주세요."></textarea></label>
@@ -36,7 +36,7 @@
         <section class="panel ai-panel">
           <div class="section-head ai-head"><div><p class="kicker">ALEX SEO DRAFT</p><h2>알렉스 원고 한 번에 붙여넣기</h2></div><span class="ai-badge">추가 비용 0원</span></div>
           <p class="help">알렉스가 작성한 원고 패키지를 그대로 붙여넣고 적용하세요. 지역·서비스·제목·본문·사진 설명까지 각 입력칸에 자동으로 나뉩니다.</p>
-          <label>완성 원고 패키지<textarea id="draftPaste" rows="12" placeholder="[게시일] 2026-08-19&#10;[서비스] 변기막힘&#10;[구] 서초구&#10;[동] 반포동&#10;[제목] ...&#10;[한 줄 요약] ...&#10;[증상] ...&#10;[원인] ...&#10;[사용 장비] ...&#10;[최종 조치] ...&#10;[현장 도착 및 진단] ...&#10;[1단계 작업] ...&#10;[2단계 작업] ...&#10;[작업 결과 및 재발 방지] ...&#10;[사진 1 설명] ...&#10;[사진 2 설명] ..."></textarea></label>
+          <label>완성 원고 패키지<textarea id="draftPaste" rows="12" placeholder="[게시일] 2026-08-19&#10;[서비스] 변기막힘&#10;[시·군·구] 평택시&#10;[동] 비전동&#10;[제목] ...&#10;[한 줄 요약] ...&#10;[증상] ...&#10;[원인] ...&#10;[사용 장비] ...&#10;[최종 조치] ...&#10;[현장 도착 및 진단] ...&#10;[1단계 작업] ...&#10;[2단계 작업] ...&#10;[작업 결과 및 재발 방지] ...&#10;[사진 1 설명] ...&#10;[사진 2 설명] ..."></textarea></label>
           <div class="ai-actions"><p id="draftMessage" class="message">기존 입력값은 원고 패키지의 내용으로 교체됩니다.</p><div class="draft-buttons"><button id="copyTemplateButton" class="secondary" type="button">양식 복사</button><button id="applyDraftButton" type="button">원고 전체 적용</button></div></div>
         </section>
 

@@ -735,31 +735,70 @@
   var count=document.querySelector('.board-count');
   var empty=document.querySelector('.filter-empty');
   var pagination=document.querySelector('.pagination');
-  function applyFilter(key,label,updateHash){
+  var pageSize=12;
+  var currentPage=1;
+  var currentKey='all';
+  var currentLabel='전체';
+  function pageItems(totalPages){
+    var pages=[];
+    if(totalPages<=5){for(var i=1;i<=totalPages;i++)pages.push(i);return pages}
+    var start=Math.max(1,Math.min(currentPage-2,totalPages-4));
+    for(var j=start;j<start+5;j++)pages.push(j);
+    return pages;
+  }
+  function renderPagination(totalPages){
+    if(!pagination)return;
+    if(totalPages<=1){pagination.hidden=true;pagination.innerHTML='';return}
+    pagination.hidden=false;
+    var html='<button type="button" data-page="'+(currentPage-1)+'"'+(currentPage===1?' disabled':'')+'>이전</button>';
+    var pages=pageItems(totalPages);
+    if(pages[0]>1)html+='<span aria-hidden="true">…</span>';
+    pages.forEach(function(page){html+='<button type="button" data-page="'+page+'" class="'+(page===currentPage?'current':'')+'"'+(page===currentPage?' aria-current="page"':'')+'>'+page+'</button>'});
+    if(pages[pages.length-1]<totalPages)html+='<span aria-hidden="true">…</span>';
+    html+='<button type="button" data-page="'+(currentPage+1)+'"'+(currentPage===totalPages?' disabled':'')+'>다음</button>';
+    pagination.innerHTML=html;
+  }
+  function updateLocation(){
+    var params=new URLSearchParams(location.search);
+    if(currentPage>1)params.set('page',String(currentPage));else params.delete('page');
+    var query=params.toString();
+    var hash=currentKey==='all'?'':'#'+currentKey;
+    history.replaceState(null,'',location.pathname+(query?'?'+query:'')+hash);
+  }
+  function applyFilter(key,label,updateUrl,requestedPage){
     var terms=filters[key]||[];
-    var visible=0;
-    rows.forEach(function(row){
+    var matches=rows.filter(function(row){
       var text=(row.textContent||'').replace(/\s+/g,' ');
-      var show=key==='all'||terms.some(function(term){return text.indexOf(term)>-1});
-      row.hidden=!show;
-      if(show)visible++;
+      return key==='all'||terms.some(function(term){return text.indexOf(term)>-1});
     });
+    var totalPages=Math.max(1,Math.ceil(matches.length/pageSize));
+    currentKey=key;
+    currentLabel=label;
+    currentPage=Math.max(1,Math.min(Number(requestedPage)||1,totalPages));
+    rows.forEach(function(row){
+      row.hidden=true;
+    });
+    matches.slice((currentPage-1)*pageSize,currentPage*pageSize).forEach(function(row){row.hidden=false});
     buttons.forEach(function(button){
       var active=button.dataset.filter===key;
       button.classList.toggle('active',active);
       button.setAttribute('aria-pressed',active?'true':'false');
     });
-    count.textContent=(key==='all'?'전체':label)+' '+visible+'건';
-    empty.hidden=visible!==0;
-    if(pagination)pagination.hidden=key!=='all';
-    if(updateHash){
-      if(key==='all')history.replaceState(null,'',location.pathname+location.search);
-      else history.replaceState(null,'',location.pathname+location.search+'#'+key);
-    }
+    count.textContent=(key==='all'?'전체':label)+' '+matches.length+'건';
+    empty.hidden=matches.length!==0;
+    renderPagination(matches.length?totalPages:0);
+    if(updateUrl)updateLocation();
   }
-  buttons.forEach(function(button){button.addEventListener('click',function(){applyFilter(button.dataset.filter,button.textContent.trim(),true)})});
+  buttons.forEach(function(button){button.addEventListener('click',function(){applyFilter(button.dataset.filter,button.textContent.trim(),true,1)})});
+  if(pagination)pagination.addEventListener('click',function(event){
+    var button=event.target.closest('button[data-page]');
+    if(!button||button.disabled)return;
+    applyFilter(currentKey,currentLabel,true,Number(button.dataset.page));
+    document.querySelector('.board-tools').scrollIntoView({behavior:'smooth',block:'start'});
+  });
   var initial=location.hash.slice(1);
   var selected=buttons.find(function(button){return button.dataset.filter===initial});
-  applyFilter(selected?initial:'all',selected?selected.textContent.trim():'전체',false);
+  var initialPage=Number(new URLSearchParams(location.search).get('page'))||1;
+  applyFilter(selected?initial:'all',selected?selected.textContent.trim():'전체',false,initialPage);
 })();
 </script></body></html>

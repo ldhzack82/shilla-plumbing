@@ -103,6 +103,8 @@ const draftLabels = {
   게시일: "date",
   날짜: "date",
   서비스: "service",
+  "시·군·구": "district",
+  시군구: "district",
   구: "district",
   지역구: "district",
   동: "neighborhood",
@@ -131,7 +133,7 @@ const draftLabels = {
 };
 const draftTemplate = `[게시일] YYYY-MM-DD
 [서비스] 변기막힘
-[구] 강남구
+[시·군·구] 강남구
 [동] 역삼동
 [제목]
 [한 줄 요약]

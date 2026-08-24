@@ -32,7 +32,10 @@ img{display:block;max-width:100%;height:auto}
 .board-date{text-align:right;color:var(--muted);font-size:13px}
 .board-row:hover{background:#f8fafc}
 .pagination{display:flex;justify-content:center;gap:6px;padding-top:28px}
-.pagination span{display:grid;width:38px;height:38px;place-items:center;border:1px solid var(--line);border-radius:8px;font-size:13px;font-weight:800}
+.pagination button,.pagination span{display:grid;min-width:38px;height:38px;padding:0 10px;place-items:center;border:1px solid var(--line);border-radius:8px;background:#fff;color:inherit;font:inherit;font-size:13px;font-weight:800}
+.pagination button{cursor:pointer}
+.pagination button:hover,.pagination button:focus-visible{border-color:var(--blue);color:var(--blue)}
+.pagination button:disabled{cursor:default;opacity:.4}
 .pagination .current{border-color:var(--navy);background:var(--navy);color:#fff}
 .filter-empty{padding:54px 20px;text-align:center;color:var(--muted);font-weight:800}
 .hero{padding:72px 0 54px;background:linear-gradient(145deg,#071f42,#124f91);color:#fff}
@@ -87,6 +90,7 @@ img{display:block;max-width:100%;height:auto}
 .board-summary{display:none}
 .board-date{grid-column:2;text-align:left;font-size:12px}
 .board-meta{font-size:11px}
+.pagination{gap:4px}.pagination button,.pagination span{min-width:34px;height:34px;padding:0 8px}
 .hero{padding:54px 0 40px}
 .summary{grid-template-columns:1fr 1fr}
 .summary div:nth-child(2){border-right:0}

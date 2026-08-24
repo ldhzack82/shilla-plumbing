@@ -484,7 +484,7 @@ function updateList(html, cases) {
   html = html.replace(/(<div class="wrap board-list">)/, `$1\n${cards}`);
   const existing = (html.match(/<article class="board-row">/g) || []).length;
   html = html.replace(
-    /<span class="board-count">전체 \d+건<\/span>/,
+    /<span class="board-count"[^>]*>전체 \d+건<\/span>/,
     `<span class="board-count">전체 ${existing}건</span>`,
   );
   html = html.replaceAll(

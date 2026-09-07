@@ -145,6 +145,23 @@ const serviceNames = {
   "pipe-work": "배관공사",
   odor: "하수구악취",
 };
+const REGION_INFO = {
+  seoul: { name: "서울", title: "서울특별시" },
+  gyeonggi: { name: "경기", title: "경기도" },
+  incheon: { name: "인천", title: "인천광역시" },
+};
+const INCHEON_AREAS = ["부평구", "계양구", "남동구", "미추홀구", "연수구", "서구", "동구", "중구", "강화군", "옹진군"];
+function regionForDistrict(district = "") {
+  if (SEOUL_AREAS.includes(district)) return "seoul";
+  if (INCHEON_AREAS.includes(district)) return "incheon";
+  if (GYEONGGI_AREAS.includes(district)) return "gyeonggi";
+  if (["수지구", "단원구"].includes(district)) return "gyeonggi";
+  if (GYEONGGI_AREAS.some((area) => district.includes(area.replace(/[시군]$/, "")))) return "gyeonggi";
+  return "gyeonggi";
+}
+function districtSlugFor(district = "") {
+  return districtSlugs[district] || slug(district) || "service-area";
+}
 const serviceQuestions = {
   "toilet-clog": [
     "변기를 꼭 탈거해야 하나요?",
@@ -444,7 +461,7 @@ function article(c) {
 <link rel="stylesheet" href="../../../field-notes/styles.css"><script type="application/ld+json">${JSON.stringify(schema).replace(/</g, "\\u003c")}</script></head>
 <body><header class="topbar"><div class="wrap"><a class="brand" href="../../../">신라건축설비</a><nav class="nav-actions" aria-label="페이지 이동"><a class="home-link primary" href="../../../">홈으로</a><a class="home-link" href="../../../field-notes/">현장기록 전체보기</a></nav></div></header><main>
 <section class="hero"><div class="wrap"><p class="eyebrow">${esc(c.district)} · ${esc(c.neighborhood)} · ${esc(service)}</p><h1>${esc(c.title)}</h1><p>${esc(c.summary)}</p></div></section>
-<div class="wrap breadcrumbs"><a href="../../../">홈</a> › <a href="../../../field-notes/">현장기록</a> › ${esc(c.district)} › ${esc(service)} › ${esc(c.neighborhood)}</div>
+<div class="wrap breadcrumbs"><a href="../../../">홈</a> › <a href="../../../field-notes/">현장기록</a> › <a href="../../../${regionForDistrict(c.district)}/">${esc(REGION_INFO[regionForDistrict(c.district)].name)}</a> › <a href="../../../${districtSlugFor(c.district)}/">${esc(c.district)}</a> › <a href="../../../${districtSlugFor(c.district)}/${c.service}/">${esc(service)}</a> › ${esc(c.neighborhood)}</div>
 <div class="wrap"><dl class="summary"><div><dt>지역</dt><dd>${esc(c.district)} ${esc(c.neighborhood)}</dd></div><div><dt>증상</dt><dd>${esc(c.symptom)}</dd></div><div><dt>확인 원인</dt><dd>${esc(c.cause)}</dd></div><div><dt>작업 방법</dt><dd>${esc(c.equipment)}</dd></div></dl></div>
 <div class="wrap content"><article class="article">
 <section><h2>${esc(c.district)} ${esc(c.neighborhood)} ${esc(service)}, 현장 도착 후 진단</h2><p>${text(c.intro)}</p></section>
@@ -455,7 +472,7 @@ function article(c) {
 <section><h2>업체를 선택할 때 확인할 사항</h2><p>무조건적인 ‘0원’ 표현보다 실제 작업 범위, 추가 비용 조건, 사용 장비와 사후 대응 기준을 확인하는 것이 중요합니다. 해결되지 않았을 때의 비용 기준과 작업 후 동일 증상 발생 시 점검 범위를 사전에 문의해두면 불필요한 분쟁을 줄일 수 있습니다.</p></section>
 <section class="faq"><h2>${esc(c.district)} ${esc(service)} 자주 묻는 질문</h2>${faq.map(([a, b]) => `<details><summary>${esc(a)}</summary><p>${esc(b)}</p></details>`).join("")}</section>
 ${regionBlock(c)}
-<nav class="related-links" aria-label="관련 서비스"><h2>${esc(c.district)} 관련 배관 안내</h2><a href="../../../field-notes/">신라건축설비 전체 현장기록</a><a href="../../../">변기·싱크대·하수구·누수·배관공사 서비스 보기</a></nav>
+<nav class="related-links" aria-label="관련 서비스"><h2>${esc(c.district)} ${esc(service)} 관련 안내</h2><a href="../../../${districtSlugFor(c.district)}/${c.service}/">${esc(c.district)} ${esc(service)} 현장사례 모아보기</a><a href="../../../${districtSlugFor(c.district)}/">${esc(c.district)} 전체 배관 현장</a><a href="../../../${regionForDistrict(c.district)}/">${esc(REGION_INFO[regionForDistrict(c.district)].name)} 지역별 현장</a><a href="../../../field-notes/">신라건축설비 전체 현장기록</a></nav>
 ${businessBlock()}
 <aside class="cta"><h2>${esc(c.neighborhood)} ${esc(service)}, 원인 구간부터 확인하세요</h2><p>증상과 발생 위치를 말씀해주시면 필요한 점검 순서와 예상 작업 범위를 먼저 안내합니다.</p><a class="btn" href="tel:18770558">1877-0558 전화상담</a></aside>
 </article></div></main><footer class="footer"><div class="wrap">신라건축설비 · 서울·경기 24시간 배관 상담 · 1877-0558</div></footer></body></html>`;
@@ -493,6 +510,41 @@ function updateList(html, cases) {
   );
   return html;
 }
+function hubCard(c, prefix = "") {
+  const service = serviceNames[c.service] || c.service,
+    date = c.date.replaceAll("-", "."),
+    thumbIndex = Number(c.thumbnailIndex) === 1 ? 1 : 0,
+    thumb = c.photos[thumbIndex];
+  return `<article class="board-row"><a href="${prefix}${c.path}/"><img class="board-thumb" src="${prefix}${c.path}/${thumb.name}" width="320" height="240" loading="lazy" alt="${esc(`${c.district} ${c.neighborhood} ${service} 현장`)}"><div class="board-copy"><div class="board-meta">${esc(c.district)} · ${esc(c.neighborhood)} · ${esc(service)}</div><h2 class="board-title">${esc(c.title)}</h2><p class="board-summary">${esc(c.summary)}</p></div><time class="board-date" datetime="${c.date}">${date}</time></a></article>`;
+}
+function districtHub(cases, district) {
+  const slugName = districtSlugFor(district), region = regionForDistrict(district), regionName = REGION_INFO[region].name;
+  const rows = cases.filter((c) => c.district === district).sort((a,b)=>caseTimestamp(b).localeCompare(caseTimestamp(a)));
+  const groups = Object.keys(serviceNames).map((key) => [key, rows.filter((c)=>c.service===key)]).filter(([,list])=>list.length);
+  const latest = rows[0]?.date || new Date().toISOString().slice(0,10);
+  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(district)} 배관 현장사례 | 변기·싱크대·하수구 | 신라건축설비</title><meta name="description" content="${esc(district)} 변기막힘, 싱크대막힘, 하수구막힘, 배관공사 실제 현장사례 ${rows.length}건을 서비스별로 확인하세요."><link rel="canonical" href="${DOMAIN}/${slugName}/"><link rel="stylesheet" href="../field-notes/styles.css"></head><body><header class="topbar"><div class="wrap"><a class="brand" href="../">신라건축설비</a><nav class="nav-actions"><a class="home-link" href="../${region}/">${regionName} 지역</a><a class="home-link" href="../field-notes/">전체 현장기록</a></nav></div></header><main><section class="hero"><div class="wrap"><p class="eyebrow">${regionName} · ${esc(district)}</p><h1>${esc(district)} 배관 현장사례</h1><p>신라건축설비가 ${esc(district)}에서 직접 진단하고 해결한 실제 작업 기록입니다.</p></div></section><div class="wrap breadcrumbs"><a href="../">홈</a> › <a href="../${region}/">${regionName}</a> › ${esc(district)}</div><div class="wrap"><div class="path-links">${groups.map(([key,list])=>`<a class="path-link" href="./${key}/">${esc(district)} ${esc(serviceNames[key])}<small>실제 현장사례 ${list.length}건</small></a>`).join("")}</div></div><div class="wrap board-tools"><span class="board-count">전체 ${rows.length}건</span></div><div class="wrap board-list">${rows.slice(0,12).map((c)=>hubCard(c,"../")).join("")}</div></main><footer class="footer"><div class="wrap">신라건축설비 · ${esc(district)} 배관 상담 · 1877-0558</div></footer></body></html>`;
+}
+function serviceHub(cases, district, serviceKey) {
+  const slugName = districtSlugFor(district), region = regionForDistrict(district), regionName = REGION_INFO[region].name, service = serviceNames[serviceKey];
+  const rows = cases.filter((c)=>c.district===district && c.service===serviceKey).sort((a,b)=>caseTimestamp(b).localeCompare(caseTimestamp(a)));
+  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(district)} ${esc(service)} 현장사례 | 신라건축설비</title><meta name="description" content="${esc(district)} ${esc(service)} 실제 해결 사례 ${rows.length}건. 증상, 원인, 사용 장비와 작업 결과를 현장 기록으로 확인하세요."><link rel="canonical" href="${DOMAIN}/${slugName}/${serviceKey}/"><link rel="stylesheet" href="../../field-notes/styles.css"></head><body><header class="topbar"><div class="wrap"><a class="brand" href="../../">신라건축설비</a><nav class="nav-actions"><a class="home-link" href="../">${esc(district)} 전체</a><a class="home-link" href="../../${region}/">${regionName} 지역</a><a class="home-link" href="../../field-notes/">전체 현장기록</a></nav></div></header><main><section class="hero"><div class="wrap"><p class="eyebrow">${regionName} · ${esc(district)} · ${esc(service)}</p><h1>${esc(district)} ${esc(service)} 현장사례</h1><p>${esc(district)}에서 실제로 확인하고 해결한 ${esc(service)} 작업 기록입니다.</p></div></section><div class="wrap breadcrumbs"><a href="../../">홈</a> › <a href="../../${region}/">${regionName}</a> › <a href="../">${esc(district)}</a> › ${esc(service)}</div><div class="wrap board-tools"><span class="board-count">전체 ${rows.length}건</span></div><div class="wrap board-list">${rows.map((c)=>hubCard(c,"../../")).join("")}</div></main><footer class="footer"><div class="wrap">신라건축설비 · ${esc(district)} ${esc(service)} 상담 · 1877-0558</div></footer></body></html>`;
+}
+function regionHub(cases, region) {
+  const info = REGION_INFO[region];
+  const rows = cases.filter((c)=>regionForDistrict(c.district)===region).sort((a,b)=>caseTimestamp(b).localeCompare(caseTimestamp(a)));
+  const districts = [...new Set(rows.map((c)=>c.district))].sort();
+  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${info.title} 배관 현장사례 | 신라건축설비</title><meta name="description" content="${info.title} 변기막힘, 싱크대막힘, 하수구막힘, 배관공사 실제 현장사례를 지역별로 확인하세요."><link rel="canonical" href="${DOMAIN}/${region}/"><link rel="stylesheet" href="../field-notes/styles.css"></head><body><header class="topbar"><div class="wrap"><a class="brand" href="../">신라건축설비</a><a class="home-link" href="../field-notes/">전체 현장기록</a></div></header><main><section class="hero"><div class="wrap"><p class="eyebrow">${info.title} FIELD NOTES</p><h1>${info.name} 지역별 배관 현장사례</h1><p>실제 출동 기록이 있는 지역을 중심으로 변기·싱크대·하수구·배관 작업 사례를 연결합니다.</p></div></section><div class="wrap breadcrumbs"><a href="../">홈</a> › ${info.name}</div><div class="wrap"><div class="path-links">${districts.map((d)=>{const n=rows.filter((c)=>c.district===d).length;return `<a class="path-link" href="../${districtSlugFor(d)}/">${esc(d)} 배관 현장<small>실제 현장사례 ${n}건</small></a>`}).join("")}</div></div><div class="wrap board-tools"><span class="board-count">전체 ${rows.length}건</span></div><div class="wrap board-list">${rows.slice(0,12).map((c)=>hubCard(c,"../")).join("")}</div></main><footer class="footer"><div class="wrap">신라건축설비 · ${info.name} 배관 상담 · 1877-0558</div></footer></body></html>`;
+}
+function hubFiles(cases) {
+  const files = Object.keys(REGION_INFO).map((region)=>({path:`${region}/index.html`,content:regionHub(cases,region)}));
+  for (const district of [...new Set(cases.map((c)=>c.district))]) {
+    const dslug = districtSlugFor(district);
+    files.push({path:`${dslug}/index.html`,content:districtHub(cases,district)});
+    for (const serviceKey of [...new Set(cases.filter((c)=>c.district===district).map((c)=>c.service))])
+      files.push({path:`${dslug}/${serviceKey}/index.html`,content:serviceHub(cases,district,serviceKey)});
+  }
+  return files;
+}
 function setSitemapLastmod(xml, url, date) {
   const escaped = url.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const re = new RegExp(
@@ -520,9 +572,14 @@ function updateSitemap(xml, cases) {
   if (latest) xml = setSitemapLastmod(xml, `${DOMAIN}/field-notes/`, latest);
   const hubDates = new Map();
   for (const c of cases) {
-    const district = `${DOMAIN}/${c.path.split("/")[0]}/`,
-      service = `${DOMAIN}/${c.path.split("/").slice(0, 2).join("/")}/`;
-    for (const url of [district, service])
+    // Hub URLs are based on the case metadata, not the legacy case path.
+    // Some older cases intentionally keep historical URLs that do not match
+    // their current district slug (e.g. a Seocho case under /seoul/...).
+    const dslug = districtSlugFor(c.district),
+      district = `${DOMAIN}/${dslug}/`,
+      service = `${DOMAIN}/${dslug}/${c.service}/`,
+      region = `${DOMAIN}/${regionForDistrict(c.district)}/`;
+    for (const url of [district, service, region])
       if (!hubDates.has(url) || hubDates.get(url) < c.date)
         hubDates.set(url, c.date);
   }
@@ -533,7 +590,16 @@ function updateSitemap(xml, cases) {
         `  <url><loc>${DOMAIN}/${c.path}/</loc><lastmod>${c.date}</lastmod><!-- admin-case --></url>`,
     )
     .join("\n");
-  return xml.replace("</urlset>", `${nodes ? `\n${nodes}\n` : ""}</urlset>`);
+  const existingUrls = new Set([...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
+  const hubUrls = [];
+  for (const region of Object.keys(REGION_INFO)) hubUrls.push(`${DOMAIN}/${region}/`);
+  for (const district of [...new Set(cases.map((c) => c.district))]) {
+    const dslug = districtSlugFor(district);
+    hubUrls.push(`${DOMAIN}/${dslug}/`);
+    for (const serviceKey of [...new Set(cases.filter((c)=>c.district===district).map((c)=>c.service))]) hubUrls.push(`${DOMAIN}/${dslug}/${serviceKey}/`);
+  }
+  const hubNodes = hubUrls.filter((u)=>!existingUrls.has(u)).map((u)=>`  <url><loc>${u}</loc><lastmod>${latest || new Date().toISOString().slice(0,10)}</lastmod><!-- admin-hub --></url>`).join("\n");
+  return xml.replace("</urlset>", `${nodes ? `\n${nodes}\n` : ""}${hubNodes ? `\n${hubNodes}\n` : ""}</urlset>`);
 }
 function xml(v = "") {
   return String(v).replace(
@@ -637,6 +703,7 @@ module.exports = async (req, res) => {
         rss = updateRss(cases);
       const files = [
         { path: `${c.path}/index.html`, content: article(c) },
+        ...hubFiles(cases),
         { path: "field-notes/index.html", content: list },
         { path: "sitemap.xml", content: sitemap },
         { path: "rss.xml", content: rss },
@@ -676,6 +743,7 @@ module.exports = async (req, res) => {
         rss = updateRss(next);
       const files = [
         { path: `${path}/index.html`, delete: true },
+        ...hubFiles(next),
         ...target.photos.map((p) => ({
           path: `${path}/${p.name}`,
           delete: true,

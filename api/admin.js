@@ -142,6 +142,14 @@ const GYEONGGI_CHILD_TO_CITY = {
   "단원구": "안산시",
   "상록구": "안산시",
 };
+const DISTRICT_ALIASES = {
+  "용인시 수지구": "수지구",
+  "안산시 단원구": "단원구",
+  "안산시 상록구": "상록구",
+};
+function canonicalDistrict(district = "") {
+  return DISTRICT_ALIASES[String(district).trim()] || String(district).trim();
+}
 function parentCityForDistrict(district = "") {
   const m = String(district).match(/^(.+?시)\s+(.+구)$/);
   if (m) return m[1];
@@ -367,6 +375,7 @@ async function commitFiles(files, message) {
 }
 function normalize(c) {
   const allowed = Object.keys(serviceNames);
+  c.district = canonicalDistrict(c.district);
   for (const k of [
     "date",
     "service",

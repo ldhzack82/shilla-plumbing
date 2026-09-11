@@ -1,0 +1,21 @@
+/* Styles are scoped to the field video section. */
+.work-videos { padding: 64px 0; background: #f5f8fc; }
+.work-videos-heading { margin-bottom: 28px; }
+.work-videos-heading h2 { margin: 0 0 12px; color: #102b4e; font-size: clamp(25px, 3vw, 36px); line-height: 1.35; }
+.work-videos-heading p { margin: 0; color: #53647a; line-height: 1.7; }
+.work-video-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+.work-video-card { min-width: 0; overflow: hidden; background: #fff; border: 1px solid #dce5ee; border-radius: 18px; }
+.work-video-media { position: relative; aspect-ratio: 4 / 3; background: #102b4e; }
+.work-video-media img, .work-video-media iframe { display: block; width: 100%; height: 100%; border: 0; object-fit: contain; }
+.work-video-media noscript a { display: block; width: 100%; height: 100%; }
+.work-video-play { position: relative; display: block; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; font: inherit; }
+.work-video-play[hidden] { display: none; }
+.work-video-play-label { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); border-radius: 30px; padding: 11px 22px; white-space: nowrap; background: #075aca; color: white; font-weight: 800; box-shadow: 0 3px 15px #0005; }
+.work-video-play:hover .work-video-play-label { background: #044395; }
+.work-video-play:focus-visible { outline: 4px solid #ffcc40; outline-offset: -4px; }
+.work-video-copy { padding: 23px; }
+.work-video-kind { color: #075aca; font-size: 13px; font-weight: 800; }
+.work-video-copy h3 { margin: 9px 0; color: #102b4e; font-size: 21px; line-height: 1.45; }
+.work-video-copy p { margin: 0 0 16px; color: #53647a; font-size: 15px; line-height: 1.7; }
+.work-video-copy a { color: #075aca; text-underline-offset: 4px; font-size: 14px; font-weight: 700; }
+@media (max-width: 760px) { .work-videos { padding: 42px 0; } .work-video-grid { grid-template-columns: 1fr; gap: 20px; } .work-video-copy { padding: 20px; } }

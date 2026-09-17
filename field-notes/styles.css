@@ -101,3 +101,8 @@ img{display:block;max-width:100%;height:auto}
 .cta{margin-top:30px}
 .business-grid{grid-template-columns:1fr}.business-actions{grid-template-columns:1fr}.map-frame,.map-frame iframe{min-height:280px}
 }
+
+/* SEO phase 1: header actions must remain usable on narrow screens. */
+.topbar .wrap{flex-wrap:wrap;padding-top:12px;padding-bottom:12px}
+.topbar .nav-actions{flex-wrap:wrap}
+@media(max-width:760px){.topbar .nav-actions{width:100%;justify-content:flex-start}.topbar .brand{flex-shrink:0}}

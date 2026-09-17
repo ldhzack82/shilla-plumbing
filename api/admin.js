@@ -1,4 +1,5 @@
 const pageSeo = require("../lib/seo");
+const companyHub = require("../lib/company-hub");
 const crypto = require("crypto");
 const OWNER_REPO = () => {
   const raw = process.env.GITHUB_REPO || "";
@@ -494,7 +495,7 @@ function article(c) {
       },
     ],
   };
-  return `<!doctype html>
+  return companyHub.addCompanyGuideLink(`<!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><link rel="canonical" href="${url}"><link rel="alternate" type="application/rss+xml" title="신라건축설비 현장기록 RSS" href="${DOMAIN}/rss.xml">
 <meta property="og:type" content="article"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:image" content="${thumb}"><meta property="og:url" content="${url}">
@@ -512,10 +513,10 @@ function article(c) {
 <section><h2>업체를 선택할 때 확인할 사항</h2><p>무조건적인 ‘0원’ 표현보다 실제 작업 범위, 추가 비용 조건, 사용 장비와 사후 대응 기준을 확인하는 것이 중요합니다. 해결되지 않았을 때의 비용 기준과 작업 후 동일 증상 발생 시 점검 범위를 사전에 문의해두면 불필요한 분쟁을 줄일 수 있습니다.</p></section>
 <section class="faq"><h2>${esc(c.district)} ${esc(service)} 자주 묻는 질문</h2>${faq.map(([a, b]) => `<details><summary>${esc(a)}</summary><p>${esc(b)}</p></details>`).join("")}</section>
 ${regionBlock(c)}
-<nav class="related-links" aria-label="관련 서비스"><h2>${esc(c.district)} ${esc(service)} 관련 안내</h2>${CORE_SERVICE_SEO[c.service] ? `<a href="../../../services/${c.service}/">${esc(serviceLabel(c.service))} 전문 서비스 안내</a>` : ""}<a href="../../../${districtSlugFor(c.district)}/${c.service}/">${esc(c.district)} ${esc(service)} 현장사례 모아보기</a><a href="../../../${districtSlugFor(c.district)}/">${esc(c.district)} 전체 배관 현장</a><a href="../../../${regionForDistrict(c.district)}/">${esc(REGION_INFO[regionForDistrict(c.district)].name)} 지역별 현장</a><a href="../../../field-notes/">신라건축설비 전체 현장기록</a></nav>
+<nav class="related-links" aria-label="관련 서비스"><a href="/hasugu-company/">하수구업체 선택 기준·비용·작업사례 안내</a><h2>${esc(c.district)} ${esc(service)} 관련 안내</h2>${CORE_SERVICE_SEO[c.service] ? `<a href="../../../services/${c.service}/">${esc(serviceLabel(c.service))} 전문 서비스 안내</a>` : ""}<a href="../../../${districtSlugFor(c.district)}/${c.service}/">${esc(c.district)} ${esc(service)} 현장사례 모아보기</a><a href="../../../${districtSlugFor(c.district)}/">${esc(c.district)} 전체 배관 현장</a><a href="../../../${regionForDistrict(c.district)}/">${esc(REGION_INFO[regionForDistrict(c.district)].name)} 지역별 현장</a><a href="../../../field-notes/">신라건축설비 전체 현장기록</a></nav>
 ${businessBlock()}
 <aside class="cta"><h2>${esc(c.neighborhood)} ${esc(service)}, 원인 구간부터 확인하세요</h2><p>증상과 발생 위치를 말씀해주시면 필요한 점검 순서와 예상 작업 범위를 먼저 안내합니다.</p><a class="btn" href="tel:18770558">1877-0558 전화상담</a></aside>
-</article></div></main><footer class="footer"><div class="wrap">신라건축설비 · 서울·경기 24시간 배관 상담 · 1877-0558</div></footer></body></html>`;
+</article></div></main><footer class="footer"><div class="wrap">신라건축설비 · 서울·경기 24시간 배관 상담 · 1877-0558</div></footer></body></html>`);
 }
 function card(c) {
   const service = serviceNames[c.service],
@@ -548,7 +549,7 @@ function updateList(html, cases) {
     "https://shilla-plumbing.vercel.app",
     "https://shillaplumbing.kr",
   );
-  return html;
+  return companyHub.addCompanyGuideLink(html);
 }
 function hubCard(c, prefix = "") {
   const service = serviceNames[c.service] || c.service,
@@ -609,6 +610,8 @@ function hubFiles(cases) {
   }
   const cities = [...new Set(cases.filter((c)=>regionForDistrict(c.district)==="gyeonggi").map((c)=>parentCityForDistrict(c.district)).filter(Boolean))];
   for (const city of cities) files.push({path:`${topAreaSlug(city)}/index.html`,content:cityHub(cases,city)});
+  for (const file of files) file.content = companyHub.addCompanyGuideLink(file.content);
+  files.push({path: companyHub.PATH, content: companyHub.renderCompanyHub(cases)});
   return files;
 }
 function setSitemapLastmod(xml, url, date) {
@@ -616,9 +619,36 @@ function setSitemapLastmod(xml, url, date) {
   const re = new RegExp(
     `(<url>\\s*<loc>${escaped}<\\/loc>\\s*<lastmod>)[^<]+(<\\/lastmod>)`,
   );
-  return xml.replace(re, `$1${date}$2`);
+  // Never move a recorded content modification backwards to an older case date.
+  return xml.replace(re, (match, before, after) => {
+    const current = match.slice(before.length, match.length - after.length);
+    return before + (current > date ? current : date) + after;
+  });
+}
+// Keep one record per URL, retaining the newest recorded modification date.
+function uniqueSitemapUrls(xml) {
+  const records = new Map();
+  for (const match of xml.matchAll(/<url>[^]*?<\/url>/g)) {
+    const node = match[0], url = node.match(/<loc>([^<]+)<\/loc>/)?.[1];
+    if (!url) continue;
+    const previous = records.get(url), date = node.match(/<lastmod>([^<]+)<\/lastmod>/)?.[1] || "";
+    const oldDate = previous?.match(/<lastmod>([^<]+)<\/lastmod>/)?.[1] || "";
+    const latest = oldDate > date ? oldDate : date;
+    const merged = latest ? (/<lastmod>/.test(node) ? node.replace(/<lastmod>[^<]+<\/lastmod>/, `<lastmod>${latest}</lastmod>`) : node.replace("</loc>", `</loc><lastmod>${latest}</lastmod>`)) : node;
+    records.set(url, merged);
+  }
+  const seen = new Set();
+  return xml.replace(/<url>[^]*?<\/url>/g, node => {
+    const url = node.match(/<loc>([^<]+)<\/loc>/)?.[1];
+    if (!url) return node;
+    if (seen.has(url)) return "";
+    seen.add(url);
+    return records.get(url);
+  });
 }
 function updateSitemap(xml, cases) {
+  xml = uniqueSitemapUrls(xml || '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
+  const previousDates = new Map([...xml.matchAll(/<url>[^]*?<\/url>/g)].map(([node]) => [node.match(/<loc>([^<]+)<\/loc>/)?.[1], node.match(/<lastmod>([^<]+)<\/lastmod>/)?.[1] || ""]));
   xml = (
     xml ||
     '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>'
@@ -646,7 +676,7 @@ function updateSitemap(xml, cases) {
       service = `${DOMAIN}/${dslug}/${c.service}/`,
       region = `${DOMAIN}/${regionForDistrict(c.district)}/`,
       city = parentCityForDistrict(c.district) ? `${DOMAIN}/${topAreaSlug(parentCityForDistrict(c.district))}/` : "";
-    for (const url of [district, service, region, city].filter(Boolean))
+    for (const url of [district, service, region, city, CORE_SERVICE_SEO[c.service] ? `${DOMAIN}/services/${c.service}/` : ""].filter(Boolean))
       if (!hubDates.has(url) || hubDates.get(url) < c.date)
         hubDates.set(url, c.date);
   }
@@ -654,11 +684,16 @@ function updateSitemap(xml, cases) {
   const nodes = sorted
     .map(
       (c) =>
-        `  <url><loc>${DOMAIN}/${c.path}/</loc><lastmod>${c.date}</lastmod><!-- admin-case --></url>`,
+        `  <url><loc>${DOMAIN}/${c.path}/</loc><lastmod>${[c.date, String(c.updatedAt || "").slice(0,10), previousDates.get(`${DOMAIN}/${c.path}/`) || ""].filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort().pop() || c.date}</lastmod><!-- admin-case --></url>`,
     )
     .join("\n");
+  const companyDate = cases.reduce((latest, c) => {
+    const updated = String(c.updatedAt || c.date || "").slice(0, 10);
+    return /^\d{4}-\d{2}-\d{2}$/.test(updated) && updated > latest ? updated : latest;
+  }, companyHub.REVISION_DATE);
+  xml = setSitemapLastmod(xml, companyHub.URL, companyDate);
   const existingUrls = new Set([...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
-  const hubUrls = Object.keys(CORE_SERVICE_SEO).map((serviceKey)=>`${DOMAIN}/services/${serviceKey}/`);
+  const hubUrls = [companyHub.URL, ...Object.keys(CORE_SERVICE_SEO).map((serviceKey)=>`${DOMAIN}/services/${serviceKey}/`)];
   for (const region of Object.keys(REGION_INFO)) hubUrls.push(`${DOMAIN}/${region}/`);
   for (const city of [...new Set(cases.map((c)=>parentCityForDistrict(c.district)).filter(Boolean))]) hubUrls.push(`${DOMAIN}/${topAreaSlug(city)}/`);
   for (const district of [...new Set(cases.map((c) => c.district))]) {
@@ -666,8 +701,8 @@ function updateSitemap(xml, cases) {
     hubUrls.push(`${DOMAIN}/${dslug}/`);
     for (const serviceKey of [...new Set(cases.filter((c)=>c.district===district).map((c)=>c.service))]) hubUrls.push(`${DOMAIN}/${dslug}/${serviceKey}/`);
   }
-  const hubNodes = hubUrls.filter((u)=>!existingUrls.has(u)).map((u)=>`  <url><loc>${u}</loc><lastmod>${latest || new Date().toISOString().slice(0,10)}</lastmod><!-- admin-hub --></url>`).join("\n");
-  return xml.replace("</urlset>", `${nodes ? `\n${nodes}\n` : ""}${hubNodes ? `\n${hubNodes}\n` : ""}</urlset>`);
+  const hubNodes = hubUrls.filter((u)=>!existingUrls.has(u)).map((u)=>`  <url><loc>${u}</loc><lastmod>${u === companyHub.URL ? companyDate : (latest || new Date().toISOString().slice(0,10))}</lastmod><!-- admin-hub --></url>`).join("\n");
+  return uniqueSitemapUrls(xml.replace("</urlset>", `${nodes ? `\n${nodes}\n` : ""}${hubNodes ? `\n${hubNodes}\n` : ""}</urlset>`));
 }
 function xml(v = "") {
   return String(v).replace(

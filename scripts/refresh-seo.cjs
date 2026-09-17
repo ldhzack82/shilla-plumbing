@@ -5,6 +5,7 @@ const path = require("node:path");
 const Module = require("node:module");
 const root = path.resolve(__dirname, "..");
 const seo = require("../lib/seo");
+const companyHub = require("../lib/company-hub");
 const apiPath = path.join(root, "api/admin.js");
 const renderer = new Module(apiPath, module);
 renderer.filename = apiPath;
@@ -14,6 +15,7 @@ const cases = JSON.parse(fs.readFileSync(path.join(root, "content/admin-cases.js
 const metadata = new Map();
 metadata.set("index.html", {title:seo.MAIN_TITLE, description:seo.MAIN_DESCRIPTION});
 metadata.set("field-notes/index.html", seo.LIST_METADATA);
+metadata.set(companyHub.PATH, companyHub.METADATA);
 for (const c of cases) metadata.set(`${c.path}/index.html`, seo.caseMetadata(c));
 for (const f of renderer.exports.hubFiles(cases)) {
   const title = f.content.match(/<title>(.*?)<\/title>/s)?.[1];

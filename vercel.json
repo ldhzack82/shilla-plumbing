@@ -49,6 +49,96 @@
       "source": "/%EC%84%9C%EC%9A%B8-%EA%B0%95%EB%82%A8%EA%B5%AC/sink-clog/",
       "destination": "/gangnam/sink-clog/",
       "permanent": true
+    },
+    {
+      "source": "/서울-서초구",
+      "destination": "/seocho/",
+      "permanent": true
+    },
+    {
+      "source": "/%EC%84%9C%EC%9A%B8-%EC%84%9C%EC%B4%88%EA%B5%AC",
+      "destination": "/seocho/",
+      "permanent": true
+    },
+    {
+      "source": "/%EC%84%9C%EC%9A%B8-%EC%84%9C%EC%B4%88%EA%B5%AC/",
+      "destination": "/seocho/",
+      "permanent": true
+    },
+    {
+      "source": "/서울-서초구/pipe-work",
+      "destination": "/seocho/pipe-work/",
+      "permanent": true
+    },
+    {
+      "source": "/%EC%84%9C%EC%9A%B8-%EC%84%9C%EC%B4%88%EA%B5%AC/pipe-work",
+      "destination": "/seocho/pipe-work/",
+      "permanent": true
+    },
+    {
+      "source": "/%EC%84%9C%EC%9A%B8-%EC%84%9C%EC%B4%88%EA%B5%AC/pipe-work/",
+      "destination": "/seocho/pipe-work/",
+      "permanent": true
+    },
+    {
+      "source": "/경기도-광주시",
+      "destination": "/gwangju/",
+      "permanent": true
+    },
+    {
+      "source": "/%EA%B2%BD%EA%B8%B0%EB%8F%84-%EA%B4%91%EC%A3%BC%EC%8B%9C",
+      "destination": "/gwangju/",
+      "permanent": true
+    },
+    {
+      "source": "/%EA%B2%BD%EA%B8%B0%EB%8F%84-%EA%B4%91%EC%A3%BC%EC%8B%9C/",
+      "destination": "/gwangju/",
+      "permanent": true
+    },
+    {
+      "source": "/경기도-광주시/toilet-clog",
+      "destination": "/gwangju/toilet-clog/",
+      "permanent": true
+    },
+    {
+      "source": "/%EA%B2%BD%EA%B8%B0%EB%8F%84-%EA%B4%91%EC%A3%BC%EC%8B%9C/toilet-clog",
+      "destination": "/gwangju/toilet-clog/",
+      "permanent": true
+    },
+    {
+      "source": "/%EA%B2%BD%EA%B8%B0%EB%8F%84-%EA%B4%91%EC%A3%BC%EC%8B%9C/toilet-clog/",
+      "destination": "/gwangju/toilet-clog/",
+      "permanent": true
+    },
+    {
+      "source": "/용인시-수지구",
+      "destination": "/%EC%88%98%EC%A7%80%EA%B5%AC/",
+      "permanent": true
+    },
+    {
+      "source": "/%EC%9A%A9%EC%9D%B8%EC%8B%9C-%EC%88%98%EC%A7%80%EA%B5%AC",
+      "destination": "/%EC%88%98%EC%A7%80%EA%B5%AC/",
+      "permanent": true
+    },
+    {
+      "source": "/%EC%9A%A9%EC%9D%B8%EC%8B%9C-%EC%88%98%EC%A7%80%EA%B5%AC/",
+      "destination": "/%EC%88%98%EC%A7%80%EA%B5%AC/",
+      "permanent": true
+    },
+    {
+      "source": "/용인시-수지구/toilet-clog",
+      "destination": "/%EC%88%98%EC%A7%80%EA%B5%AC/toilet-clog/",
+      "permanent": true
+    },
+    {
+      "source": "/%EC%9A%A9%EC%9D%B8%EC%8B%9C-%EC%88%98%EC%A7%80%EA%B5%AC/toilet-clog",
+      "destination": "/%EC%88%98%EC%A7%80%EA%B5%AC/toilet-clog/",
+      "permanent": true
+    },
+    {
+      "source": "/%EC%9A%A9%EC%9D%B8%EC%8B%9C-%EC%88%98%EC%A7%80%EA%B5%AC/toilet-clog/",
+      "destination": "/%EC%88%98%EC%A7%80%EA%B5%AC/toilet-clog/",
+      "permanent": true
     }
   ]
 }

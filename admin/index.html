@@ -27,7 +27,7 @@
         <section class="panel"><h2>기본 정보</h2><div class="grid cols-2">
           <label>게시일<input id="date" type="date" required></label>
           <label>서비스<select id="service" required><option value="toilet-clog">변기막힘</option><option value="sink-clog">싱크대막힘</option><option value="drain-clog">하수구막힘</option><option value="high-pressure-cleaning">고압세척</option><option value="leak-detection">누수탐지</option><option value="pipe-work">배관공사</option><option value="odor">하수구악취</option></select></label>
-          <label>시·군·구(예: 강남구, 평택시)<input id="district" required placeholder="강남구 또는 평택시"></label>
+          <label>시·군·구<input id="district" required placeholder="서울 강남구 / 경기 광주시 / 인천 부평구" aria-describedby="districtHelp"><small id="districtHelp">시·도와 시·군·구를 함께 입력하세요. 표기 차이는 자동으로 통일하며, 불분명한 지역은 게시 전에 확인합니다. 동·읍·면은 아래 칸에 입력하세요.</small></label>
           <label>동(예: 역삼동)<input id="neighborhood" required placeholder="역삼동"></label>
           <label class="wide">제목<input id="title" required maxlength="80" placeholder="역삼동 변기막힘, 석션 후 변기 탈거로 해결"></label>
           <label class="wide">한 줄 요약<textarea id="summary" rows="2" maxlength="180" required placeholder="현장 증상과 핵심 해결 과정을 한 문장으로 적어주세요."></textarea></label>

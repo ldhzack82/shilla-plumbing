@@ -150,7 +150,10 @@ const DISTRICT_ALIASES = {
   "안산시 상록구": "상록구",
 };
 function canonicalDistrict(district = "") {
-  return DISTRICT_ALIASES[String(district).trim()] || String(district).trim();
+  const value = String(district).trim().replace(/\s+/g, " ");
+  const seoulDistrict = value.replace(/^서울(?:특별시|시)?\s*/, "");
+  if (SEOUL_AREAS.includes(seoulDistrict)) return seoulDistrict;
+  return DISTRICT_ALIASES[value] || value;
 }
 function parentCityForDistrict(district = "") {
   const m = String(district).match(/^(.+?시)\s+(.+구)$/);
@@ -191,6 +194,7 @@ const REGION_INFO = {
 };
 const INCHEON_AREAS = ["부평구", "계양구", "남동구", "미추홀구", "연수구", "서구", "동구", "중구", "강화군", "옹진군"];
 function regionForDistrict(district = "") {
+  district = canonicalDistrict(district);
   if (SEOUL_AREAS.includes(district)) return "seoul";
   if (INCHEON_AREAS.includes(district)) return "incheon";
   if (GYEONGGI_AREAS.includes(district)) return "gyeonggi";
@@ -199,6 +203,7 @@ function regionForDistrict(district = "") {
   return "gyeonggi";
 }
 function districtSlugFor(district = "") {
+  district = canonicalDistrict(district);
   return districtSlugs[district] || slug(district) || "service-area";
 }
 const serviceQuestions = {
@@ -330,7 +335,7 @@ async function registry() {
   const raw = await getFile("content/admin-cases.json");
   if (!raw) return [];
   try {
-    return JSON.parse(raw);
+    return JSON.parse(raw).map(c => ({ ...c, district: canonicalDistrict(c.district) }));
   } catch {
     return [];
   }
@@ -407,6 +412,9 @@ function normalize(c) {
   return c;
 }
 function makeIdentity(c, cases) {
+  // Preserve existing public case URLs and photo locations when a district label is corrected.
+  const existing = cases.find(x => x.path === safePath(c.originalPath));
+  if (existing) return { districtSlug: existing.path.split("/")[0], id: existing.path.split("/").pop(), path: existing.path };
   const districtSlug =
     districtSlugs[c.district] || slug(c.district) || "service-area";
   const base = `${districtSlug}-${c.service}`;
@@ -566,6 +574,11 @@ function districtHub(cases, district) {
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(pageSeo.areaMetadata(district, rows.length).title)}</title><meta name="description" content="${esc(pageSeo.areaMetadata(district, rows.length).description)}"><link rel="canonical" href="${DOMAIN}/${slugName}/"><link rel="stylesheet" href="../field-notes/styles.css"></head><body><header class="topbar"><div class="wrap"><a class="brand" href="../">신라건축설비</a><nav class="nav-actions"><a class="home-link" href="../${region}/">${regionName} 지역</a><a class="home-link" href="../field-notes/">전체 현장기록</a></nav></div></header><main><section class="hero"><div class="wrap"><p class="eyebrow">${regionName} · ${esc(district)}</p><h1>${esc(district)} 배관 현장사례</h1><p>신라건축설비가 ${esc(district)}에서 직접 진단하고 해결한 실제 작업 기록입니다.</p></div></section><div class="wrap breadcrumbs"><a href="../">홈</a> › <a href="../${region}/">${regionName}</a> › ${esc(district)}</div><div class="wrap"><div class="path-links">${groups.map(([key,list])=>`<a class="path-link" href="./${key}/">${esc(district)} ${esc(serviceNames[key])}<small>실제 현장사례 ${list.length}건</small></a>`).join("")}</div></div><div class="wrap board-tools"><span class="board-count">전체 ${rows.length}건</span></div><div class="wrap board-list">${rows.slice(0,12).map((c)=>hubCard(c,"../")).join("")}</div></main><footer class="footer"><div class="wrap">신라건축설비 · ${esc(district)} 배관 상담 · 1877-0558</div></footer></body></html>`;
 }
 function serviceHub(cases, district, serviceKey) {
+  const html = baseServiceHub(cases, district, serviceKey);
+  return district === "강남구" && serviceKey === "sink-clog"
+    ? require("../lib/gangnam-sink").enhance(html) : html;
+}
+function baseServiceHub(cases, district, serviceKey) {
   const slugName = districtSlugFor(district), region = regionForDistrict(district), regionName = REGION_INFO[region].name, service = serviceNames[serviceKey], seo = CORE_SERVICE_SEO[serviceKey];
   const rows = cases.filter((c)=>c.district===district && c.service===serviceKey).sort((a,b)=>caseTimestamp(b).localeCompare(caseTimestamp(a)));
   const metadata = pageSeo.serviceMetadata(serviceKey, district, rows.length);

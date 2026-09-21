@@ -144,16 +144,8 @@ const GYEONGGI_CHILD_TO_CITY = {
   "단원구": "안산시",
   "상록구": "안산시",
 };
-const DISTRICT_ALIASES = {
-  "용인시 수지구": "수지구",
-  "안산시 단원구": "단원구",
-  "안산시 상록구": "상록구",
-};
 function canonicalDistrict(district = "") {
-  const value = String(district).trim().replace(/\s+/g, " ");
-  const seoulDistrict = value.replace(/^서울(?:특별시|시)?\s*/, "");
-  if (SEOUL_AREAS.includes(seoulDistrict)) return seoulDistrict;
-  return DISTRICT_ALIASES[value] || value;
+  return districtResolver.resolve(district)?.district || String(district).trim();
 }
 function parentCityForDistrict(district = "") {
   const m = String(district).match(/^(.+?시)\s+(.+구)$/);
@@ -192,15 +184,13 @@ const REGION_INFO = {
   gyeonggi: { name: "경기", title: "경기도" },
   incheon: { name: "인천", title: "인천광역시" },
 };
-const INCHEON_AREAS = ["부평구", "계양구", "남동구", "미추홀구", "연수구", "서구", "동구", "중구", "강화군", "옹진군"];
+// Include historical names for older case records and the July 2026 districts.
+const INCHEON_AREAS = ["부평구", "계양구", "남동구", "미추홀구", "연수구", "서구", "동구", "중구", "강화군", "옹진군", "제물포구", "영종구", "검단구"];
+const districtResolver = require("../lib/districts").createDistrictResolver(SEOUL_AREAS, GYEONGGI_AREAS, INCHEON_AREAS);
 function regionForDistrict(district = "") {
-  district = canonicalDistrict(district);
-  if (SEOUL_AREAS.includes(district)) return "seoul";
-  if (INCHEON_AREAS.includes(district)) return "incheon";
-  if (GYEONGGI_AREAS.includes(district)) return "gyeonggi";
-  if (["수지구", "단원구"].includes(district)) return "gyeonggi";
-  if (GYEONGGI_AREAS.some((area) => district.includes(area.replace(/[시군]$/, "")))) return "gyeonggi";
-  return "gyeonggi";
+  const result = districtResolver.resolve(district);
+  if (!result) throw new Error(`등록된 지역을 확인해주세요: ${district}`);
+  return result.region;
 }
 function districtSlugFor(district = "") {
   district = canonicalDistrict(district);
@@ -337,7 +327,7 @@ async function registry() {
   try {
     return JSON.parse(raw).map(c => ({ ...c, district: canonicalDistrict(c.district) }));
   } catch {
-    return [];
+    throw new Error("현장사례 목록을 읽을 수 없습니다. 기존 사례 보호를 위해 게시를 중단했습니다.");
   }
 }
 async function commitFiles(files, message) {
@@ -380,9 +370,10 @@ async function commitFiles(files, message) {
   });
   return commit.sha;
 }
-function normalize(c) {
+function normalize(c, cases = []) {
   const allowed = Object.keys(serviceNames);
-  c.district = canonicalDistrict(c.district);
+  const existing = cases.find(x => x.path === safePath(c.originalPath));
+  c.district = districtResolver.validate(c.district, existing?.district).district;
   for (const k of [
     "date",
     "service",
@@ -625,7 +616,9 @@ function hubFiles(cases) {
   for (const city of cities) files.push({path:`${topAreaSlug(city)}/index.html`,content:cityHub(cases,city)});
   for (const file of files) file.content = companyHub.addCompanyGuideLink(file.content);
   files.push({path: companyHub.PATH, content: companyHub.renderCompanyHub(cases)});
-  return files;
+  // A city may have cases both with and without a child district. Its combined
+  // city hub replaces the district-only hub, rather than writing the same path twice.
+  return [...new Map(files.map(file => [file.path, file])).values()];
 }
 function setSitemapLastmod(xml, url, date) {
   const escaped = url.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -788,7 +781,7 @@ module.exports = async (req, res) => {
     if (action === "list") return json(res, 200, { cases: await registry() });
     if (action === "publish") {
       let cases = await registry(),
-        c = normalize(req.body.caseData || {}),
+        c = normalize(req.body.caseData || {}, cases),
         oldPath = safePath(c.originalPath);
       const id = makeIdentity(c, cases);
       c.path = id.path;

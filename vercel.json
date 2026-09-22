@@ -140,5 +140,6 @@
       "destination": "/%EC%88%98%EC%A7%80%EA%B5%AC/toilet-clog/",
       "permanent": true
     }
-  ]
+  ],
+  "trailingSlash": true
 }

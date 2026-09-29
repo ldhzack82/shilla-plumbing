@@ -57,11 +57,13 @@
         </div></section>
 
         <section class="panel seo-panel"><h2>자동 생성 항목</h2><ul><li>SEO 제목·설명·canonical·OG·Article·Plumber 구조화 데이터</li><li>서울 25개 구·경기도 31개 시군 출동지역과 지역 키워드</li><li>Google 지도·리뷰·주소·24시간 영업·길찾기·대표번호</li><li>현장기록 목록·사이트맵·RSS 갱신과 IndexNow 알림</li></ul></section>
+        <section class="panel"><label for="tags">태그</label><textarea id="tags" rows="3" aria-describedby="tagsHelp tagsCount" placeholder="변기막힘 / 서울변기막힘 / 신라건축설비"></textarea><p id="tagsHelp">/ 또는 쉼표로 구분해 최대 10개 입력하세요. 중복은 자동 제거됩니다.<br>권장 구성: 기본 키워드 4개 · 지역 3개 · 현장 특성 2개 · 브랜드 1개</p><p id="tagsCount" role="status">0 / 10개</p></section>
         <div class="publish-bar"><p id="publishMessage" class="message"></p><button id="publishButton" type="submit">현장사례 게시하기</button></div>
       </form>
 
       <section class="panel recent"><div class="section-head"><h2>관리자에서 게시한 사례</h2><button id="reloadButton" class="secondary" type="button">새로고침</button></div><div id="caseList" class="case-list"><p>불러오는 중…</p></div></section>
     </section>
   </main>
+  <script src="/lib/case-tags.js"></script>
   <script src="/admin/app.js" defer></script>
 </body></html>

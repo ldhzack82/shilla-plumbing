@@ -409,6 +409,7 @@ function normalize(c, cases = []) {
       delete c.seoDescription;
     }
   }
+  c.tags = require("../lib/case-tags").normalize(c.tags === undefined ? existing?.tags : c.tags);
   c.thumbnailIndex = Number(c.thumbnailIndex) === 1 ? 1 : 0;
   return c;
 }
@@ -527,6 +528,7 @@ ${regionBlock(c)}
 <nav class="related-links" aria-label="관련 서비스"><h2>${esc(c.district)} ${esc(service)} 관련 안내</h2><a href="/hasugu-company/">하수구업체 선택 기준·비용·작업사례 안내</a>${CORE_SERVICE_SEO[c.service] ? `<a href="../../../services/${c.service}/">${esc(serviceLabel(c.service))} 전문 서비스 안내</a>` : ""}<a href="../../../${districtSlugFor(c.district)}/${c.service}/">${esc(c.district)} ${esc(service)} 현장사례 모아보기</a><a href="../../../${districtSlugFor(c.district)}/">${esc(c.district)} 전체 배관 현장</a><a href="../../../${regionForDistrict(c.district)}/">${esc(REGION_INFO[regionForDistrict(c.district)].name)} 지역별 현장</a><a href="../../../field-notes/">신라건축설비 전체 현장기록</a></nav>
 ${businessBlock()}
 <aside class="cta"><h2>${esc(c.neighborhood)} ${esc(service)}, 원인 구간부터 확인하세요</h2><p>증상과 발생 위치를 말씀해주시면 필요한 점검 순서와 예상 작업 범위를 먼저 안내합니다.</p><a class="btn" href="tel:18770558">1877-0558 전화상담</a></aside>
+${require("../lib/case-tags").render(c.tags)}
 </article></div></main><footer class="footer"><div class="wrap">신라건축설비 · 서울·경기 24시간 배관 상담 · 1877-0558</div></footer></body></html>`);
 }
 function card(c) {

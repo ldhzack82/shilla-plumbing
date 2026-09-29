@@ -166,3 +166,10 @@ img{display:block;max-width:100%;height:auto}
 .case-share-dialog button{padding:8px 20px;border:0;border-radius:8px;background:#08264f;color:#fff;cursor:pointer}
 @media(max-width:760px){.case-brand-actions{width:100%;justify-content:space-between;gap:8px}.case-header-button{min-height:40px;padding:0 10px}}
 @media(max-width:360px){.case-brand-actions .brand{font-size:18px}.case-header-buttons{gap:4px}.case-header-button{font-size:12px;padding:0 8px}}
+
+/* Optional case keywords, below the final consultation CTA. */
+.case-tags{margin-top:28px;padding-top:18px;border-top:1px solid #e5e7eb}
+.case-tags p{margin:0 0 10px;font-size:13px;color:#64748b}
+.case-tags ul{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:0}
+.case-tags li{max-width:100%;margin:0}
+.case-tag{display:block;padding:5px 10px;border-radius:14px;background:#f1f5f9;color:#475569;font-size:12px;line-height:1.5;overflow-wrap:anywhere}

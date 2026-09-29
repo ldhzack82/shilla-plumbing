@@ -23,6 +23,12 @@ const fields = [
   "caption1",
   "caption2",
 ];
+function updateTags() {
+  const count = CaseTags.parse($("tags").value).length;
+  $("tagsCount").textContent = `${count} / 10개${count > 10 ? " — 10개 이하로 줄여주세요." : ""}`;
+  $("tags").setCustomValidity(count > 10 ? "태그는 최대 10개까지 입력해주세요." : "");
+}
+$("tags").addEventListener("input", updateTags);
 const serviceNames = {
   "toilet-clog": "변기막힘",
   "sink-clog": "싱크대막힘",
@@ -88,6 +94,7 @@ function resetForm() {
   state.editing = null;
   state.oldPhotos = null;
   $("caseForm").reset();
+  updateTags();
   $("date").valueAsDate = new Date();
   $("originalPath").value = "";
   $("photo1").required = true;
@@ -100,6 +107,7 @@ function resetForm() {
 }
 $("resetButton").onclick = resetForm;
 const draftLabels = {
+  태그: "tags",
   게시일: "date",
   날짜: "date",
   서비스: "service",
@@ -146,7 +154,8 @@ const draftTemplate = `[게시일] YYYY-MM-DD
 [2단계 작업]
 [작업 결과 및 재발 방지]
 [사진 1 설명]
-[사진 2 설명]`;
+[사진 2 설명]
+[태그]`;
 function parseDraft(raw) {
   const out = {};
   let current = "";
@@ -213,6 +222,7 @@ $("applyDraftButton").onclick = () => {
   }
   for (const [id, value] of Object.entries(parsed))
     if ($(id) && value) $(id).value = value;
+  updateTags();
   const required = [
       "service",
       "district",
@@ -268,6 +278,8 @@ $("caseList").addEventListener("click", async (e) => {
   if (del !== undefined) await deleteCase(state.cases[Number(del)]);
 });
 function editCase(c) {
+  $("tags").value = CaseTags.parse(c.tags).join(" / ");
+  updateTags();
   state.editing = c.path;
   state.oldPhotos = c.photos;
   for (const id of fields) if ($(id) && c[id] != null) $(id).value = c[id];
@@ -345,6 +357,7 @@ $("caseForm").addEventListener("submit", async (e) => {
     const form = Object.fromEntries(
       fields.filter((id) => $(id)).map((id) => [id, $(id).value.trim()]),
     );
+    form.tags = CaseTags.normalize($("tags").value);
     form.thumbnailIndex = Number(
       document.querySelector('input[name="thumbnailIndex"]:checked')?.value ||
         0,

@@ -399,6 +399,16 @@ function normalize(c, cases = []) {
     throw new Error("지원하지 않는 서비스입니다.");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(c.date))
     throw new Error("게시일 형식이 올바르지 않습니다.");
+  if (existing?.service === "sink-clog") {
+    const unchanged = ["title", "summary", "district", "neighborhood", "service"].every(k => c[k] === existing[k]);
+    if (unchanged) {
+      c.seoTitle = existing.seoTitle;
+      c.seoDescription = existing.seoDescription;
+    } else {
+      delete c.seoTitle;
+      delete c.seoDescription;
+    }
+  }
   c.thumbnailIndex = Number(c.thumbnailIndex) === 1 ? 1 : 0;
   return c;
 }
@@ -451,7 +461,7 @@ function article(c) {
   const faq = baseFaq.map(([question, answer], index) => [
     question,
     index === 0
-      ? `${c.district} ${c.neighborhood} 현장처럼 ${c.symptom} 증상은 원인이 현장마다 다를 수 있습니다. ${answer}`
+      ? (c.service === "sink-clog" ? `${answer} 이번 ${c.district} ${c.neighborhood} 현장에서 확인한 원인은 다음과 같습니다. ${c.cause}` : `${c.district} ${c.neighborhood} 현장처럼 ${c.symptom} 증상은 원인이 현장마다 다를 수 있습니다. ${answer}`)
       : answer,
   ]);
   const schema = {
@@ -567,7 +577,8 @@ function districtHub(cases, district) {
 function serviceHub(cases, district, serviceKey) {
   const html = baseServiceHub(cases, district, serviceKey);
   return district === "강남구" && serviceKey === "sink-clog"
-    ? require("../lib/gangnam-sink").enhance(html) : html;
+    ? require("../lib/gangnam-sink").enhance(html)
+    : serviceKey === "sink-clog" ? require("../lib/district-sink").enhance(html, district) : html;
 }
 function baseServiceHub(cases, district, serviceKey) {
   const slugName = districtSlugFor(district), region = regionForDistrict(district), regionName = REGION_INFO[region].name, service = serviceNames[serviceKey], seo = CORE_SERVICE_SEO[serviceKey];
@@ -586,7 +597,7 @@ function globalServiceHub(cases, serviceKey) {
   const metadata = pageSeo.serviceMetadata(serviceKey, "", rows.length);
   const desc = metadata.description;
   const schema={"@context":"https://schema.org","@graph":[{"@type":"Service","name":seo.title,"serviceType":service,"provider":{"@id":`${DOMAIN}/#business`},"areaServed":["서울특별시","경기도","인천광역시"],"url":`${DOMAIN}/services/${serviceKey}/`},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"홈","item":`${DOMAIN}/`},{"@type":"ListItem","position":2,"name":seo.title,"item":`${DOMAIN}/services/${serviceKey}/`}]}]};
-  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(metadata.title)}</title><meta name="description" content="${esc(desc)}"><link rel="canonical" href="${DOMAIN}/services/${serviceKey}/"><link rel="stylesheet" href="../../field-notes/styles.css"><script type="application/ld+json">${JSON.stringify(schema).replace(/</g,"\\u003c")}</script></head><body><header class="topbar"><div class="wrap"><a class="brand" href="../../">신라건축설비</a><nav class="nav-actions"><a class="home-link primary" href="../../field-notes/">실제 현장사례</a><a class="home-link" href="tel:18770558">1877-0558</a></nav></div></header><main><section class="hero"><div class="wrap"><p class="eyebrow">서울 · 경기 · 인천 24시간 배관 전문</p><h1>${esc(pageSeo.clean(seo.title))}</h1><p>${esc(desc)}</p></div></section><div class="wrap breadcrumbs"><a href="../../">홈</a> › ${esc(seo.title)}</div><div class="wrap content"><article class="article"><section><h2>${esc(service)} 증상은 원인 구간부터 확인합니다</h2><p>${esc(seo.symptoms)} 등 같은 ${service} 증상이라도 변기·배수구 내부, 연결 배관, 오수관 또는 공용배관처럼 원인이 발생한 위치가 다를 수 있습니다. 신라건축설비는 증상만 보고 작업을 정하지 않고 현장 상태를 확인한 뒤 필요한 작업 범위와 비용 조건을 먼저 안내합니다.</p><p><strong>실제 현장에서 확인되는 주요 원인:</strong> ${esc(seo.causes)}</p><p><strong>주요 점검·작업:</strong> ${esc(seo.methods)}</p></section><section><h2>${esc(service)} 원인부터 ${esc(seo.intent)} 선택까지</h2><p>${esc(seo.related)}처럼 검색하는 상황은 표현은 달라도 같은 배수 문제에서 시작되는 경우가 많습니다. 신라건축설비는 단순 관통 여부만 보지 않고 증상, 막힘 위치, 이물질 여부와 배관 상태를 함께 확인해 필요한 작업을 판단합니다.</p></section><section><h2>${esc(seo.intent)} 선택 전 실제 작업사례를 확인하세요</h2><p>광고 문구만이 아니라 실제로 어떤 증상을 어떤 장비로 진단하고 해결했는지가 중요합니다. 현재 신라건축설비 홈페이지에는 ${service} 실제 현장사례 ${rows.length}건이 공개되어 있으며 지역, 원인, 작업 과정과 결과를 확인할 수 있습니다.</p></section><section><h2>지역별 ${esc(seo.title)} 실제 출동 기록</h2><div class="path-links">${districts.map(d=>{const n=rows.filter(c=>c.district===d).length;return `<a class="path-link" href="../../${districtSlugFor(d)}/${serviceKey}/">${esc(d)} ${esc(seo.title)}<small>실제 현장사례 ${n}건</small></a>`}).join("")}</div></section><section><h2>최근 ${esc(service)} 해결사례</h2><div class="board-list">${rows.slice(0,12).map(c=>hubCard(c,"../../")).join("")}</div></section><section><h2>서울·경기·인천 ${esc(service)} 출동</h2><p>${regionCounts.map(([r,n])=>`${REGION_INFO[r].name} ${n}건`).join(" · ")}의 실제 기록을 기반으로 지역별 사례를 연결합니다. 새로운 현장사례가 등록되면 해당 서비스와 지역 허브에 함께 누적됩니다.</p><div class="path-links">${regionCounts.map(([r,n])=>`<a class="path-link" href="../../${r}/">${REGION_INFO[r].name} 지역 현장<small>${n}건의 ${esc(service)} 기록</small></a>`).join("")}</div></section><aside class="cta"><h2>${esc(seo.title)} 상담</h2><p>현재 증상과 위치를 알려주시면 필요한 점검 순서와 예상 작업 범위를 먼저 안내합니다.</p><a class="btn" href="tel:18770558">1877-0558 전화상담</a></aside></article></div></main><footer class="footer"><div class="wrap">신라건축설비 · ${esc(seo.title)} · 서울·경기·인천 24시간 상담 · 1877-0558</div></footer></body></html>`;
+  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(metadata.title)}</title><meta name="description" content="${esc(desc)}"><link rel="canonical" href="${DOMAIN}/services/${serviceKey}/"><link rel="stylesheet" href="../../field-notes/styles.css"><script type="application/ld+json">${JSON.stringify(schema).replace(/</g,"\\u003c")}</script></head><body><header class="topbar"><div class="wrap"><a class="brand" href="../../">신라건축설비</a><nav class="nav-actions"><a class="home-link primary" href="../../field-notes/">실제 현장사례</a><a class="home-link" href="tel:18770558">1877-0558</a></nav></div></header><main><section class="hero"><div class="wrap"><p class="eyebrow">서울 · 경기 · 인천 24시간 배관 전문</p><h1>${esc(pageSeo.clean(seo.title))}</h1><p>${esc(desc)}</p></div></section><div class="wrap breadcrumbs"><a href="../../">홈</a> › ${esc(seo.title)}</div><div class="wrap content"><article class="article"><section><h2>${esc(service)} 증상은 원인 구간부터 확인합니다</h2><p>${esc(seo.symptoms)} 등 같은 ${service} 증상이라도 ${serviceKey === "sink-clog" ? "싱크대 배수구와 트랩, 주방 배수관 또는 연결된 공용배관 등 막힌 구간이 다를 수 있습니다." : "변기·배수구 내부, 연결 배관, 오수관 또는 공용배관처럼 원인이 발생한 위치가 다를 수 있습니다."} 신라건축설비는 증상만 보고 작업을 정하지 않고 현장 상태를 확인한 뒤 필요한 작업 범위와 비용 조건을 먼저 안내합니다.</p><p><strong>실제 현장에서 확인되는 주요 원인:</strong> ${esc(seo.causes)}</p><p><strong>주요 점검·작업:</strong> ${esc(seo.methods)}</p></section><section><h2>${esc(service)} 원인부터 ${esc(seo.intent)} 선택까지</h2><p>${esc(seo.related)}처럼 검색하는 상황은 표현은 달라도 같은 배수 문제에서 시작되는 경우가 많습니다. 신라건축설비는 단순 관통 여부만 보지 않고 증상, 막힘 위치, 이물질 여부와 배관 상태를 함께 확인해 필요한 작업을 판단합니다.</p></section><section><h2>${esc(seo.intent)} 선택 전 실제 작업사례를 확인하세요</h2><p>광고 문구만이 아니라 실제로 어떤 증상을 어떤 장비로 진단하고 해결했는지가 중요합니다. 현재 신라건축설비 홈페이지에는 ${service} 실제 현장사례 ${rows.length}건이 공개되어 있으며 지역, 원인, 작업 과정과 결과를 확인할 수 있습니다.</p></section><section><h2>지역별 ${esc(seo.title)} 실제 출동 기록</h2><div class="path-links">${districts.map(d=>{const n=rows.filter(c=>c.district===d).length;return `<a class="path-link" href="../../${districtSlugFor(d)}/${serviceKey}/">${esc(d)} ${esc(seo.title)}<small>실제 현장사례 ${n}건</small></a>`}).join("")}</div></section><section><h2>최근 ${esc(service)} 해결사례</h2><div class="board-list">${rows.slice(0,12).map(c=>hubCard(c,"../../")).join("")}</div></section><section><h2>서울·경기·인천 ${esc(service)} 출동</h2><p>${regionCounts.map(([r,n])=>`${REGION_INFO[r].name} ${n}건`).join(" · ")}의 실제 기록을 기반으로 지역별 사례를 연결합니다. 새로운 현장사례가 등록되면 해당 서비스와 지역 허브에 함께 누적됩니다.</p><div class="path-links">${regionCounts.map(([r,n])=>`<a class="path-link" href="../../${r}/">${REGION_INFO[r].name} 지역 현장<small>${n}건의 ${esc(service)} 기록</small></a>`).join("")}</div></section><aside class="cta"><h2>${esc(seo.title)} 상담</h2><p>현재 증상과 위치를 알려주시면 필요한 점검 순서와 예상 작업 범위를 먼저 안내합니다.</p><a class="btn" href="tel:18770558">1877-0558 전화상담</a></aside></article></div></main><footer class="footer"><div class="wrap">신라건축설비 · ${esc(seo.title)} · 서울·경기·인천 24시간 상담 · 1877-0558</div></footer></body></html>`;
 }
 function cityHub(cases, city) {
   const slugName = topAreaSlug(city);

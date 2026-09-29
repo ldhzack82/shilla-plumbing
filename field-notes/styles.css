@@ -115,3 +115,27 @@ img{display:block;max-width:100%;height:auto}
 @keyframes case-pulse{0%,100%{box-shadow:0 5px 14px #08264f20;transform:scale(1)}50%{box-shadow:0 0 0 5px #1766c21b,0 8px 20px #08264f25;transform:scale(1.012)}}
 @media(max-width:540px){.case-actions{gap:8px}.case-action{min-height:64px;padding:8px 5px;font-size:13px;gap:5px}.case-action svg{height:19px;width:19px}.case-action small{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.case-action--call,.case-action--kakao{animation:none}}
+
+/* Reviews and booking: desktop 3 columns; mobile reviews above full-width booking. */
+.case-engagement{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:26px 0 0}
+.engagement-card{position:relative;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:190px;padding:24px 14px;border:1px solid transparent;border-radius:18px;text-align:center;text-decoration:none;line-height:1.3;box-shadow:0 8px 22px #08264f12;transition:transform .18s,box-shadow .18s}
+.engagement-card:hover{transform:translateY(-2px);box-shadow:0 12px 26px #08264f22}
+.engagement-card:focus-visible{outline:3px solid #08264f;outline-offset:4px}
+.engagement-brand{font-size:20px;font-weight:800;display:block;line-height:1.2}
+.engagement-title{display:block;font-size:clamp(28px,3.7vw,42px);font-weight:900;letter-spacing:-1.4px;line-height:1.2;white-space:nowrap}
+.engagement-caption{display:block;font-size:15px;font-weight:700;line-height:1.5}
+.engagement-naver{background:#03c75a;color:#fff}
+.engagement-booking{background:#f97316;color:#fff;box-shadow:0 8px 22px #f9731626}
+.engagement-google{background:#fff;color:#08264f;border-color:#c7ddff;overflow:hidden}
+.engagement-google:after{content:"";position:absolute;bottom:0;left:0;right:0;height:6px;background:linear-gradient(to right,#4285f4 0 25%,#ea4335 25% 50%,#fbbc05 50% 75%,#34a853 75%)}
+.engagement-google-brand{font-size:27px;letter-spacing:-1.3px;font-weight:600}
+.engagement-google-brand i{font-style:normal}.engagement-google-brand i:nth-child(1),.engagement-google-brand i:nth-child(4){color:#4285f4}.engagement-google-brand i:nth-child(2),.engagement-google-brand i:nth-child(6){color:#ea4335}.engagement-google-brand i:nth-child(3){color:#fbbc05}.engagement-google-brand i:nth-child(5){color:#34a853}
+@media(max-width:760px){
+.case-engagement{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"naver google" "booking booking";gap:12px;margin-top:22px}
+.engagement-naver{grid-area:naver}.engagement-google{grid-area:google}.engagement-booking{grid-area:booking;min-height:146px}
+.engagement-card{min-height:150px;padding:20px 8px;gap:10px;border-radius:15px}
+.engagement-brand{font-size:16px}.engagement-google-brand{font-size:23px}
+.engagement-title{font-size:clamp(24px,6.5vw,36px);letter-spacing:-1px}
+.engagement-caption{font-size:13px}.engagement-booking .engagement-title{font-size:36px}.engagement-booking .engagement-caption{font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){.engagement-card{transition:none}.engagement-card:hover{transform:none}}

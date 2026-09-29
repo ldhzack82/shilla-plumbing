@@ -513,6 +513,7 @@ function article(c) {
 <section class="hero"><div class="wrap"><p class="eyebrow">${esc(c.district)} · ${esc(c.neighborhood)} · ${esc(service)}</p><h1>${esc(title.replace(/ 신라건축설비$/, ""))}</h1><p>${esc(desc)}</p></div></section>
 <div class="wrap breadcrumbs"><a href="../../../">홈</a> › <a href="../../../field-notes/">현장기록</a> › <a href="../../../${regionForDistrict(c.district)}/">${esc(REGION_INFO[regionForDistrict(c.district)].name)}</a> › <a href="../../../${districtSlugFor(c.district)}/">${esc(c.district)}</a> › <a href="../../../${districtSlugFor(c.district)}/${c.service}/">${esc(service)}</a> › ${esc(c.neighborhood)}</div>
 <div class="wrap"><dl class="summary"><div><dt>지역</dt><dd>${esc(c.district)} ${esc(c.neighborhood)}</dd></div><div><dt>증상</dt><dd>${esc(c.symptom)}</dd></div><div><dt>확인 원인</dt><dd>${esc(c.cause)}</dd></div><div><dt>작업 방법</dt><dd>${esc(c.equipment)}</dd></div></dl></div>
+${require("../lib/case-engagement").render()}
 <div class="wrap content"><article class="article">
 <section><h2>${esc(c.district)} ${esc(c.neighborhood)} ${esc(service)}, 현장 도착 후 진단</h2><p>${text(c.intro)}</p></section>
 <section><h2>1단계: 증상 확인과 필요한 장비 작업</h2><p>${text(c.step1)}</p><figure class="article-image"><img src="${esc(c.photos[0].name)}" width="${c.photos[0].width}" height="${c.photos[0].height}" loading="lazy" alt="${esc(`${c.district} ${c.neighborhood} ${service} ${c.caption1}`)}"><figcaption>${esc(c.caption1)}</figcaption></figure></section>

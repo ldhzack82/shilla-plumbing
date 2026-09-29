@@ -5238,7 +5238,7 @@
         <div class="nav-scroll">
           <a href="#real-work">실제현장</a><a href="#reviews">고객후기</a
           ><a href="#problem">증상확인</a><a href="#services">전문서비스</a
-          ><a href="/hasugu-company/">하수구업체 안내</a><a href="#cases">출동사례</a><a href="#coverage">출동지역</a
+          ><a href="/hasugu-company/">하수구업체 안내</a><a class="nav-cases" href="#cases">출동사례</a><a href="#coverage">출동지역</a
           ><a href="#local-seo">지역서비스</a><a href="#faq">FAQ</a
           ><a href="#philosophy">회사소개</a
           ><a class="nav-hot" href="#contact">전화문의</a>
@@ -5759,9 +5759,10 @@
             </article>
           </div>
           <div class="field-notes-more">
+            <p>현장에서 직접 해결한 작업 기록을 확인하세요.</p>
             <a
               href="./field-notes/index.html"
-              >신라건축설비 현장기록 더보기&nbsp;→</a
+              >실제 출동사례 전체보기&nbsp;→</a
             >
           </div>
           <div class="blog-mascot">
@@ -6621,39 +6622,58 @@
 </style>
 
 <style>
-  /* 현장기록 진입 버튼: 과하지 않은 반복 강조 */
+  /* 출동사례 진입 버튼: 선명한 파란색과 부드러운 빛 강조 */
+  .top-nav .nav-scroll a.nav-cases {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+    font-weight: 800;
+    padding-inline: 20px;
+  }
+  .top-nav .nav-scroll a.nav-cases:hover { background: #1d4ed8; }
   .field-notes-more {
     display: flex;
-    justify-content: center;
-    margin: 26px 0 8px;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin: 30px 0 28px;
+    text-align: center;
+  }
+  .field-notes-more p {
+    margin: 0;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.6;
+    font-weight: 600;
   }
   .field-notes-more a {
+    box-sizing: border-box;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 46px;
-    padding: 0 26px;
-    border: 1.5px solid #0b2f5b;
-    border-radius: 999px;
-    background: #fff;
-    color: #0b2f5b;
-    font-size: 15px;
-    font-weight: 800;
-    line-height: 1;
-    text-decoration: none;
-    box-shadow: 0 8px 20px rgba(11, 47, 91, 0.12);
-    animation: field-notes-pulse 2.8s ease-in-out infinite;
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-  }
-  .field-notes-more a:hover,
-  .field-notes-more a:focus-visible {
-    background: #0b2f5b;
+    width: min(100%, 580px);
+    min-height: 60px;
+    padding: 15px 20px;
+    border: 1px solid #60a5fa;
+    border-radius: 16px;
+    background: #2563eb;
     color: #fff;
-    transform: translateY(-2px);
+    font-size: clamp(17px, 2vw, 21px);
+    font-weight: 800;
+    line-height: 1.4;
+    text-decoration: none;
+    animation: field-notes-pulse 2s ease-in-out infinite;
+    transition: background-color .2s ease;
+  }
+  .field-notes-more a:hover { background: #1d4ed8; }
+  .field-notes-more a:focus-visible,
+  .top-nav .nav-scroll a.nav-cases:focus-visible {
+    outline: 3px solid #0f172a;
+    outline-offset: 4px;
   }
   @keyframes field-notes-pulse {
-    0%, 70%, 100% { transform: scale(1); box-shadow: 0 8px 20px rgba(11, 47, 91, 0.12); }
-    82% { transform: scale(1.035); box-shadow: 0 8px 28px rgba(18, 103, 204, 0.34), 0 0 0 7px rgba(18, 103, 204, 0.08); }
+    0%, 100% { box-shadow: 0 4px 12px rgba(37,99,235,.16), 0 0 0 0 rgba(96,165,250,0); }
+    50% { box-shadow: 0 4px 18px rgba(37,99,235,.3), 0 0 0 4px rgba(96,165,250,.16); }
   }
   @media (prefers-reduced-motion: reduce) {
     .field-notes-more a { animation: none; }

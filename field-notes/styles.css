@@ -152,3 +152,17 @@ img{display:block;max-width:100%;height:auto}
 .promise-call:focus-visible,.promise-toggle:focus-visible{outline:3px solid #ffe082;outline-offset:-4px}
 @media(max-width:420px){.case-promise .promise-call{padding:14px 36px 16px}.promise-slide{font-size:16px}.promise-copy{min-height:32px}.promise-contact{font-size:12px}.promise-contact strong{font-size:16px}}
 @media(prefers-reduced-motion:reduce){.promise-slide{transition:none;transform:none}}
+
+/* Case header: compact share and Kakao estimate actions */
+.case-brand-actions{display:flex;align-items:center;gap:14px;min-width:0}
+.case-header-buttons{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.case-header-button{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 11px;border:1px solid #d8e0eb;border-radius:8px;background:#fff;color:#1766c2;font:700 13px/1.3 Arial,"Noto Sans KR",sans-serif;white-space:nowrap;cursor:pointer;text-decoration:none}
+.case-quote{background:#f97316;border-color:#f97316;color:#fff}
+.case-header-button:focus-visible{outline:3px solid #1766c2;outline-offset:3px}
+.case-share-status{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:1000;width:max-content;max-width:calc(100% - 32px);padding:12px 18px;border-radius:10px;background:#08264f;color:#fff;font-size:14px;box-shadow:0 4px 20px #08264f33}
+.case-share-dialog{max-width:min(480px,calc(100% - 32px));border:1px solid #d8e0eb;border-radius:14px;padding:24px;color:#142033}
+.case-share-dialog::backdrop{background:#08264f77}
+.case-share-dialog input{display:block;width:100%;margin:12px 0;padding:10px;border:1px solid #d8e0eb;border-radius:6px;font-size:16px}
+.case-share-dialog button{padding:8px 20px;border:0;border-radius:8px;background:#08264f;color:#fff;cursor:pointer}
+@media(max-width:760px){.case-brand-actions{width:100%;justify-content:space-between;gap:8px}.case-header-button{min-height:40px;padding:0 10px}}
+@media(max-width:360px){.case-brand-actions .brand{font-size:18px}.case-header-buttons{gap:4px}.case-header-button{font-size:12px;padding:0 8px}}

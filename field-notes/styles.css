@@ -139,3 +139,16 @@ img{display:block;max-width:100%;height:auto}
 .engagement-caption{font-size:13px}.engagement-booking .engagement-title{font-size:36px}.engagement-booking .engagement-caption{font-size:14px}
 }
 @media(prefers-reduced-motion:reduce){.engagement-card{transition:none}.engagement-card:hover{transform:none}}
+
+/* Compact rotating field-case promise */
+.case-promise{position:relative;margin:26px 0;padding:0!important;border:0!important;border-radius:16px;background:linear-gradient(115deg,#0b2346,#123f70);color:#fff;text-align:center;overflow:hidden}
+.case-promise .promise-call{display:block;padding:16px 44px 18px;color:#fff;text-decoration:none}
+.promise-copy{display:grid;min-height:36px;align-items:center}
+.promise-slide{grid-area:1/1;opacity:0;transform:translateY(4px);transition:opacity .3s,transform .3s;font-size:clamp(17px,3vw,23px);line-height:1.6;font-weight:800;color:#ffe082;word-break:keep-all}
+.promise-slide.is-active{opacity:1;transform:translateY(0)}
+.promise-contact{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:4px 10px;margin-top:5px;font-size:14px;color:#d0e1f3;line-height:1.5}
+.promise-contact strong{font-size:18px;letter-spacing:.5px;color:#fff}
+.case-promise .promise-toggle{position:absolute;right:0;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;background:transparent;color:#c4d5e8;font-size:12px;cursor:pointer}
+.promise-call:focus-visible,.promise-toggle:focus-visible{outline:3px solid #ffe082;outline-offset:-4px}
+@media(max-width:420px){.case-promise .promise-call{padding:14px 36px 16px}.promise-slide{font-size:16px}.promise-copy{min-height:32px}.promise-contact{font-size:12px}.promise-contact strong{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.promise-slide{transition:none;transform:none}}

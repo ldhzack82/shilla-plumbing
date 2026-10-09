@@ -23,6 +23,7 @@ const fields = [
   "caption1",
   "caption2",
   "thumbnailRegion",
+  "representativeMode",
 ];
 function updateTags() {
   const count = CaseTags.parse($("tags").value).length;
@@ -286,6 +287,7 @@ function editCase(c) {
   $("photo1").required = false;
   $("photo2").required = false;
   $("thumbnailRegion").value = c.thumbnailRegion || "";
+  $("representativeMode").value = c.representativeMode || (c.thumbnail ? "generated" : Number(c.thumbnailIndex) === 1 ? "photo2" : "photo1");
   for (const n of [1,2]) {
     $("photo"+n).value = "";
     $("preview"+n).src = "/"+c.path+"/"+c.photos[n-1].name;

@@ -28,7 +28,7 @@
           <label>게시일<input id="date" type="date" required></label>
           <label>서비스<select id="service" required><option value="toilet-clog">변기막힘</option><option value="sink-clog">싱크대막힘</option><option value="drain-clog">하수구막힘</option><option value="high-pressure-cleaning">고압세척</option><option value="leak-detection">누수탐지</option><option value="pipe-work">배관공사</option><option value="odor">하수구악취</option></select></label>
           <label>시·군·구<input id="district" required placeholder="서울 강남구 / 경기 광주시 / 인천 부평구" aria-describedby="districtHelp"><small id="districtHelp">시·도와 시·군·구를 함께 입력하세요. 표기 차이는 자동으로 통일하며, 불분명한 지역은 게시 전에 확인합니다. 동·읍·면은 아래 칸에 입력하세요.</small></label>
-          <label>동(예: 역삼동)<input id="neighborhood" required placeholder="역삼동"></label>
+          <label>동·읍·면 (선택)<input id="neighborhood" placeholder="역삼동"></label>
           <label class="wide">제목<input id="title" required maxlength="80" placeholder="역삼동 변기막힘, 석션 후 변기 탈거로 해결"></label>
           <label class="wide">한 줄 요약<textarea id="summary" rows="2" maxlength="180" required placeholder="현장 증상과 핵심 해결 과정을 한 문장으로 적어주세요."></textarea></label>
         </div></section>
@@ -51,9 +51,10 @@
           <label class="wide">작업 결과 및 재발 방지<textarea id="closing" rows="5" required placeholder="정상 배수 확인, 고객 안내, 재발 방지 요령을 적어주세요."></textarea></label>
         </div></section>
 
-        <section class="panel"><h2>실사진 2장</h2><p class="help">업로드 시 긴 변 1600px 이하의 WebP로 자동 변환됩니다. 아래에서 목록·검색·공유에 사용할 대표사진을 선택하세요.</p><div class="photos">
-          <div class="photo-box"><label><span>사진 1 · 진단/작업 전</span><input id="photo1" type="file" accept="image/jpeg,image/png,image/webp" required></label><img id="preview1" alt="사진 1 미리보기"><label><span>사진 1 설명</span><input id="caption1" placeholder="사진 설명" required></label><label class="thumbnail-choice"><input type="radio" name="thumbnailIndex" value="0" checked><span>사진 1을 대표사진으로</span></label></div>
-          <div class="photo-box"><label><span>사진 2 · 작업/완료</span><input id="photo2" type="file" accept="image/jpeg,image/png,image/webp" required></label><img id="preview2" alt="사진 2 미리보기"><label><span>사진 2 설명</span><input id="caption2" placeholder="사진 설명" required></label><label class="thumbnail-choice"><input type="radio" name="thumbnailIndex" value="1"><span>사진 2를 대표사진으로</span></label></div>
+        <section class="panel"><h2>자동 대표 썸네일</h2><p class="help">지역과 서비스를 입력하면 자동으로 만들어집니다. 게시할 때 대표 이미지로 함께 저장됩니다.</p><label>썸네일 지역명 수정 (선택)<input id="thumbnailRegion" maxlength="40" placeholder="비워두면 지역·동 입력값으로 자동 생성"></label><canvas id="thumbnailPreview" width="1200" height="1200" style="display:block;width:min(100%,360px);height:auto;margin-top:16px" aria-label="자동 대표 썸네일 미리보기"></canvas></section>
+        <section class="panel"><h2>실사진 2장</h2><p class="help">업로드 시 긴 변 1600px 이하의 WebP로 자동 변환됩니다. 현장 사진은 본문에 표시되며, 대표 이미지는 아래 썸네일로 자동 생성됩니다.</p><div class="photos">
+          <div class="photo-box"><label><span>사진 1 · 진단/작업 전</span><input id="photo1" type="file" accept="image/jpeg,image/png,image/webp" required></label><img id="preview1" alt="사진 1 미리보기"><label><span>사진 1 설명</span><input id="caption1" placeholder="사진 설명" required></label></div>
+          <div class="photo-box"><label><span>사진 2 · 작업/완료</span><input id="photo2" type="file" accept="image/jpeg,image/png,image/webp" required></label><img id="preview2" alt="사진 2 미리보기"><label><span>사진 2 설명</span><input id="caption2" placeholder="사진 설명" required></label></div>
         </div></section>
 
         <section class="panel seo-panel"><h2>자동 생성 항목</h2><ul><li>SEO 제목·설명·canonical·OG·Article·Plumber 구조화 데이터</li><li>서울 25개 구·경기도 31개 시군 출동지역과 지역 키워드</li><li>Google 지도·리뷰·주소·24시간 영업·길찾기·대표번호</li><li>현장기록 목록·사이트맵·RSS 갱신과 IndexNow 알림</li></ul></section>
@@ -65,5 +66,6 @@
     </section>
   </main>
   <script src="/lib/case-tags.js"></script>
-  <script src="/admin/app.js" defer></script>
+  <script src="/lib/case-thumbnail.js?v=20261009"></script>
+  <script src="/admin/app.js?v=20261009" defer></script>
 </body></html>

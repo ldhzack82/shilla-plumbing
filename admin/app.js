@@ -22,6 +22,7 @@ const fields = [
   "closing",
   "caption1",
   "caption2",
+  "thumbnailRegion",
 ];
 function updateTags() {
   const count = CaseTags.parse($("tags").value).length;
@@ -99,9 +100,7 @@ function resetForm() {
   $("originalPath").value = "";
   $("photo1").required = true;
   $("photo2").required = true;
-  document.querySelector(
-    'input[name="thumbnailIndex"][value="0"]',
-  ).checked = true;
+  updateThumbnail();
   for (const id of ["preview1", "preview2"]) $(id).removeAttribute("src");
   message($("publishMessage"), "");
 }
@@ -223,10 +222,10 @@ $("applyDraftButton").onclick = () => {
   for (const [id, value] of Object.entries(parsed))
     if ($(id) && value) $(id).value = value;
   updateTags();
+  updateThumbnail();
   const required = [
       "service",
       "district",
-      "neighborhood",
       "title",
       "summary",
       "symptom",
@@ -286,10 +285,12 @@ function editCase(c) {
   $("originalPath").value = c.path;
   $("photo1").required = false;
   $("photo2").required = false;
-  const thumb = document.querySelector(
-    `input[name="thumbnailIndex"][value="${Number(c.thumbnailIndex) === 1 ? 1 : 0}"]`,
-  );
-  if (thumb) thumb.checked = true;
+  $("thumbnailRegion").value = c.thumbnailRegion || "";
+  for (const n of [1,2]) {
+    $("photo"+n).value = "";
+    $("preview"+n).src = "/"+c.path+"/"+c.photos[n-1].name;
+  }
+  updateThumbnail();
   scrollTo({ top: 0, behavior: "smooth" });
   message($("publishMessage"), "기존 사례 수정 중");
 }
@@ -358,10 +359,8 @@ $("caseForm").addEventListener("submit", async (e) => {
       fields.filter((id) => $(id)).map((id) => [id, $(id).value.trim()]),
     );
     form.tags = CaseTags.normalize($("tags").value);
-    form.thumbnailIndex = Number(
-      document.querySelector('input[name="thumbnailIndex"]:checked')?.value ||
-        0,
-    );
+    updateThumbnail();
+    form.thumbnailImage = CaseThumbnail.image($("thumbnailPreview"));
     const [image1, image2] = await Promise.all([
       imageData($("photo1").files[0]),
       imageData($("photo2").files[0]),
@@ -418,3 +417,14 @@ if (state.password)
     state.password = "";
     sessionStorage.removeItem("shillaAdminPassword");
   });
+
+function updateThumbnail() {
+  CaseThumbnail.draw($("thumbnailPreview"),
+    CaseThumbnail.region($("district").value, $("neighborhood").value, $("thumbnailRegion").value),
+    serviceNames[$("service").value]);
+}
+for (const id of ["district","neighborhood","service","thumbnailRegion"]) {
+  $(id).addEventListener("input",updateThumbnail);
+  $(id).addEventListener("change",updateThumbnail);
+}
+updateThumbnail();

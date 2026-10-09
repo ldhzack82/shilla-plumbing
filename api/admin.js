@@ -378,7 +378,6 @@ function normalize(c, cases = []) {
     "date",
     "service",
     "district",
-    "neighborhood",
     "title",
     "summary",
     "symptom",
@@ -411,6 +410,20 @@ function normalize(c, cases = []) {
   }
   c.tags = require("../lib/case-tags").normalize(c.tags === undefined ? existing?.tags : c.tags);
   c.thumbnailIndex = Number(c.thumbnailIndex) === 1 ? 1 : 0;
+  c.neighborhood = String(c.neighborhood || "").trim();
+  c.thumbnailRegion = String(c.thumbnailRegion || "").trim().slice(0,40);
+  delete c.thumbnail;
+  if (c.thumbnailImage) {
+    const img = c.thumbnailImage;
+    if (typeof img.data !== "string" || img.data.length > 2000000 || !/^[A-Za-z0-9+/]+={0,2}$/.test(img.data))
+      throw new Error("썸네일 이미지 형식이나 크기를 확인해주세요.");
+    const bytes = Buffer.from(img.data, "base64");
+    if (bytes.length < 24 || bytes.subarray(0,8).toString("hex") !== "89504e470d0a1a0a" || bytes.readUInt32BE(16) !== 1200 || bytes.readUInt32BE(20) !== 1200)
+      throw new Error("1200px PNG 썸네일이 필요합니다.");
+    c.thumbnail = { name: "case-thumbnail.png", width: 1200, height: 1200 };
+  } else if (existing?.thumbnail) {
+    throw new Error("관리자 페이지를 새로고침한 뒤 썸네일을 다시 생성해주세요.");
+  }
   return c;
 }
 function makeIdentity(c, cases) {
@@ -456,7 +469,7 @@ function article(c) {
     url = `${DOMAIN}/${c.path}/`,
     imgs = c.photos.map((p) => `${url}${p.name}`),
     thumbIndex = Number(c.thumbnailIndex) === 1 ? 1 : 0,
-    thumb = imgs[thumbIndex];
+    thumb = c.thumbnail ? `${url}${c.thumbnail.name}` : imgs[thumbIndex];
   const { title, description: desc } = pageSeo.caseMetadata(c);
   const baseFaq = serviceQuestions[c.service] || serviceQuestions["pipe-work"];
   const faq = baseFaq.map(([question, answer], index) => [
@@ -472,7 +485,7 @@ function article(c) {
         "@type": "Article",
         headline: title,
         description: desc,
-        image: imgs,
+        image: c.thumbnail ? [thumb, ...imgs] : imgs,
         author: { "@id": `${DOMAIN}/#business` },
         publisher: { "@id": `${DOMAIN}/#business` },
         mainEntityOfPage: url,
@@ -535,9 +548,9 @@ function card(c) {
   const service = serviceNames[c.service],
     date = c.date.replaceAll("-", "."),
     thumbIndex = Number(c.thumbnailIndex) === 1 ? 1 : 0,
-    thumb = c.photos[thumbIndex],
+    thumb = c.thumbnail || c.photos[thumbIndex],
     caption = thumbIndex === 1 ? c.caption2 : c.caption1;
-  return `<!-- ADMIN-CASE:${c.path} --><article class="board-row"><a href="../${c.path}/"><img class="board-thumb" src="../${c.path}/${thumb.name}" width="320" height="240" loading="lazy" alt="${esc(`${c.district} ${c.neighborhood} ${service} ${caption}`)}"><div class="board-copy"><div class="board-meta">${esc(c.district)} · ${esc(c.neighborhood)} · ${esc(service)}</div><h2 class="board-title">${esc(pageSeo.caseMetadata(c).title.replace(/ 신라건축설비$/, ""))}</h2><p class="board-summary">${esc(pageSeo.caseMetadata(c).description)}</p></div><time class="board-date" datetime="${c.date}">${date}</time></a></article><!-- /ADMIN-CASE:${c.path} -->`;
+  return `<!-- ADMIN-CASE:${c.path} --><article class="board-row"><a href="../${c.path}/"><img class="board-thumb" style="object-fit:contain;background:#063ba7" src="../${c.path}/${thumb.name}" width="320" height="240" loading="lazy" alt="${esc(`${c.district} ${c.neighborhood} ${service} ${caption}`)}"><div class="board-copy"><div class="board-meta">${esc(c.district)} · ${esc(c.neighborhood)} · ${esc(service)}</div><h2 class="board-title">${esc(pageSeo.caseMetadata(c).title.replace(/ 신라건축설비$/, ""))}</h2><p class="board-summary">${esc(pageSeo.caseMetadata(c).description)}</p></div><time class="board-date" datetime="${c.date}">${date}</time></a></article><!-- /ADMIN-CASE:${c.path} -->`;
 }
 function caseTimestamp(c) {
   return String(c.updatedAt || `${c.date}T00:00:00.000Z`);
@@ -568,8 +581,8 @@ function hubCard(c, prefix = "") {
   const service = serviceNames[c.service] || c.service,
     date = c.date.replaceAll("-", "."),
     thumbIndex = Number(c.thumbnailIndex) === 1 ? 1 : 0,
-    thumb = c.photos[thumbIndex];
-  return `<article class="board-row"><a href="${prefix}${c.path}/"><img class="board-thumb" src="${prefix}${c.path}/${thumb.name}" width="320" height="240" loading="lazy" alt="${esc(`${c.district} ${c.neighborhood} ${service} 현장`)}"><div class="board-copy"><div class="board-meta">${esc(c.district)} · ${esc(c.neighborhood)} · ${esc(service)}</div><h2 class="board-title">${esc(pageSeo.caseMetadata(c).title.replace(/ 신라건축설비$/, ""))}</h2><p class="board-summary">${esc(pageSeo.caseMetadata(c).description)}</p></div><time class="board-date" datetime="${c.date}">${date}</time></a></article>`;
+    thumb = c.thumbnail || c.photos[thumbIndex];
+  return `<article class="board-row"><a href="${prefix}${c.path}/"><img class="board-thumb" style="object-fit:contain;background:#063ba7" src="${prefix}${c.path}/${thumb.name}" width="320" height="240" loading="lazy" alt="${esc(`${c.district} ${c.neighborhood} ${service} 현장`)}"><div class="board-copy"><div class="board-meta">${esc(c.district)} · ${esc(c.neighborhood)} · ${esc(service)}</div><h2 class="board-title">${esc(pageSeo.caseMetadata(c).title.replace(/ 신라건축설비$/, ""))}</h2><p class="board-summary">${esc(pageSeo.caseMetadata(c).description)}</p></div><time class="board-date" datetime="${c.date}">${date}</time></a></article>`;
 }
 function districtHub(cases, district) {
   const slugName = districtSlugFor(district), region = regionForDistrict(district), regionName = REGION_INFO[region].name;
@@ -819,6 +832,7 @@ module.exports = async (req, res) => {
       cases.push({
         ...c,
         images: undefined,
+        thumbnailImage: undefined,
         oldPhotos: undefined,
         originalPath: undefined,
       });
@@ -836,6 +850,8 @@ module.exports = async (req, res) => {
           content: JSON.stringify(cases, null, 2) + "\n",
         },
       ];
+      if (c.thumbnailImage?.data)
+        files.push({ path: `${c.path}/${c.thumbnail.name}`, content: c.thumbnailImage.data, base64: true });
       for (let i = 0; i < 2; i++)
         if (c.images?.[i]?.data)
           files.push({
@@ -868,6 +884,7 @@ module.exports = async (req, res) => {
       const files = [
         { path: `${path}/index.html`, delete: true },
         ...hubFiles(next),
+        ...(target.thumbnail ? [{path: `${path}/${target.thumbnail.name}`, delete: true}] : []),
         ...target.photos.map((p) => ({
           path: `${path}/${p.name}`,
           delete: true,

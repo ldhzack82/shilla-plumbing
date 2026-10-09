@@ -551,6 +551,7 @@ ${require("../lib/case-engagement").render()}
 <section class="result"><h2>작업 결과와 재발 방지 안내</h2><p>${text(c.closing)}</p><p><strong>최종 조치:</strong> ${esc(c.result)}</p></section>
 <section><h2>현장 방문 전 확인하는 비용과 작업 범위</h2><p>신라건축설비는 현장 증상과 배관 구조를 확인한 뒤 필요한 작업과 예상 비용을 안내합니다. 단순 관통으로 해결되는지, 배관내시경·석션·고압세척 또는 ${c.service === "toilet-clog" ? "변기 탈거" : "추가 장비"}가 필요한지는 현장 상태에 따라 달라집니다. 출장비와 야간 작업비, 추가 장비 비용이 발생할 수 있는 경우 작업 전에 먼저 설명하고 동의를 받은 범위에서 진행합니다.</p></section>
 <section><h2>업체를 선택할 때 확인할 사항</h2><p>무조건적인 ‘0원’ 표현보다 실제 작업 범위, 추가 비용 조건, 사용 장비와 사후 대응 기준을 확인하는 것이 중요합니다. 해결되지 않았을 때의 비용 기준과 작업 후 동일 증상 발생 시 점검 범위를 사전에 문의해두면 불필요한 분쟁을 줄일 수 있습니다.</p></section>
+${c.thumbnail ? `<figure class="case-thumbnail-body" style="max-width:520px;margin:28px auto"><img src="${esc(c.thumbnail.name)}" width="1200" height="1200" loading="lazy" decoding="async" style="display:block;width:100%;height:auto" alt="${esc(`${c.thumbnailRegion || [c.district, c.neighborhood].filter(Boolean).join(' ')} ${service} 신라건축설비 24시 출동 안내`)}"></figure>` : ""}
 <section class="faq"><h2>${esc(c.district)} ${esc(service)} 자주 묻는 질문</h2>${faq.map(([a, b]) => `<details><summary>${esc(a)}</summary><p>${esc(b)}</p></details>`).join("")}</section>
 ${require("../lib/case-promise").render()}
 ${regionBlock(c)}

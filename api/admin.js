@@ -373,6 +373,7 @@ async function commitFiles(files, message) {
 function normalize(c, cases = []) {
   const allowed = Object.keys(serviceNames);
   const existing = cases.find(x => x.path === safePath(c.originalPath));
+  const thumbnailDistrictInput = c.district;
   c.district = districtResolver.validate(c.district, existing?.district).district;
   for (const k of [
     "date",
@@ -420,7 +421,13 @@ function normalize(c, cases = []) {
     const bytes = Buffer.from(img.data, "base64");
     if (bytes.length < 24 || bytes.subarray(0,8).toString("hex") !== "89504e470d0a1a0a" || bytes.readUInt32BE(16) !== 1200 || bytes.readUInt32BE(20) !== 1200)
       throw new Error("1200px PNG 썸네일이 필요합니다.");
-    c.thumbnail = { name: "case-thumbnail.png", width: 1200, height: 1200 };
+    const thumbnailLocation = require("../lib/case-thumbnail").region(
+      thumbnailDistrictInput, c.neighborhood, c.thumbnailRegion
+    );
+    const thumbnailStem = [thumbnailLocation, serviceNames[c.service], "신라건축설비"]
+      .join("-").normalize("NFC").replace(/[^가-힣a-zA-Z0-9-]+/g, "-")
+      .replace(/-+/g, "-").replace(/^-|-$/g, "");
+    c.thumbnail = { name: thumbnailStem + ".png", width: 1200, height: 1200 };
   } else if (existing?.thumbnail) {
     throw new Error("관리자 페이지를 새로고침한 뒤 썸네일을 다시 생성해주세요.");
   }

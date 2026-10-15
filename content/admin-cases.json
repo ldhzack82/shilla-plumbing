@@ -4465,7 +4465,7 @@
     "caption1": "소변기 탈거 전 배수구 주변과 바닥 연결 부위를 확인한 모습",
     "caption2": "소변기 탈거 후 리지드 샤프트와 호스로 배수관 통수 작업을 진행하는 모습",
     "thumbnailRegion": "",
-    "representativeMode": "photo2",
+    "representativeMode": "generated",
     "tags": [
       "변기막힘",
       "변기뚫는업체",
@@ -4478,7 +4478,7 @@
       "리지드샤프트",
       "신라건축설비"
     ],
-    "thumbnailIndex": 1,
+    "thumbnailIndex": 0,
     "thumbnail": {
       "name": "송파구-가락동-변기막힘-신라건축설비.png",
       "width": 1200,
@@ -4497,6 +4497,6 @@
         "height": 1600
       }
     ],
-    "updatedAt": "2026-10-15T14:33:44.932Z"
+    "updatedAt": "2026-10-15T14:38:22.802Z"
   }
 ]

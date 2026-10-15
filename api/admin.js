@@ -7,6 +7,12 @@ const OWNER_REPO = () => {
   return { owner, repo };
 };
 const BRANCH = () => process.env.GITHUB_BRANCH || "main";
+// Keep failed GitHub requests from consuming the whole Vercel function window.
+const GITHUB_REQUEST_TIMEOUT_MS = 12000;
+// Publishing regenerates many regional hub pages.  A small pool is faster than
+// serial blob uploads, without creating enough requests to trigger GitHub's
+// secondary rate limits.
+const GITHUB_BLOB_CONCURRENCY = 6;
 const DOMAIN = "https://shillaplumbing.kr";
 const BUSINESS = {
   name: "신라건축설비",
@@ -291,24 +297,35 @@ async function gh(path, options = {}) {
   const { owner, repo } = OWNER_REPO();
   if (!owner || !repo)
     throw new Error("GITHUB_REPO 환경변수 형식은 소유자/저장소입니다.");
-  const res = await fetch(
-    `https://api.github.com/repos/${owner}/${repo}${path}`,
-    {
-      ...options,
-      headers: {
-        Accept: "application/vnd.github+json",
-        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
-        "X-GitHub-Api-Version": "2022-11-28",
-        "User-Agent": "shilla-admin",
-        ...(options.headers || {}),
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), GITHUB_REQUEST_TIMEOUT_MS);
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}${path}`,
+      {
+        ...options,
+        signal: controller.signal,
+        headers: {
+          Accept: "application/vnd.github+json",
+          Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+          "X-GitHub-Api-Version": "2022-11-28",
+          "User-Agent": "shilla-admin",
+          ...(options.headers || {}),
+        },
       },
-    },
-  );
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`GitHub 오류 ${res.status}: ${body.slice(0, 240)}`);
+    );
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`GitHub 오류 ${res.status}: ${body.slice(0, 240)}`);
+    }
+    return res.status === 204 ? null : res.json();
+  } catch (error) {
+    if (controller.signal.aborted)
+      throw new Error("GitHub 요청 시간이 초과되었습니다. 토큰과 저장소 연결 상태를 확인해주세요.");
+    throw error;
+  } finally {
+    clearTimeout(timer);
   }
-  return res.status === 204 ? null : res.json();
 }
 async function getFile(path) {
   try {
@@ -335,11 +352,12 @@ async function commitFiles(files, message) {
   const ref = await gh(`/git/ref/heads/${encodeURIComponent(branch)}`);
   const parentSha = ref.object.sha;
   const parent = await gh(`/git/commits/${parentSha}`);
-  const entries = [];
-  for (const f of files) {
+  const entries = await mapWithConcurrency(
+    files,
+    GITHUB_BLOB_CONCURRENCY,
+    async (f) => {
     if (f.delete) {
-      entries.push({ path: f.path, mode: "100644", type: "blob", sha: null });
-      continue;
+      return { path: f.path, mode: "100644", type: "blob", sha: null };
     }
     const blob = await gh("/git/blobs", {
       method: "POST",
@@ -351,8 +369,9 @@ async function commitFiles(files, message) {
         encoding: "base64",
       }),
     });
-    entries.push({ path: f.path, mode: "100644", type: "blob", sha: blob.sha });
-  }
+    return { path: f.path, mode: "100644", type: "blob", sha: blob.sha };
+  },
+  );
   const tree = await gh("/git/trees", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -369,6 +388,22 @@ async function commitFiles(files, message) {
     body: JSON.stringify({ sha: commit.sha, force: false }),
   });
   return commit.sha;
+}
+
+async function mapWithConcurrency(items, limit, worker) {
+  const results = new Array(items.length);
+  let next = 0;
+  const workers = Array.from(
+    { length: Math.min(limit, items.length) },
+    async () => {
+      while (next < items.length) {
+        const index = next++;
+        results[index] = await worker(items[index], index);
+      }
+    },
+  );
+  await Promise.all(workers);
+  return results;
 }
 function normalize(c, cases = []) {
   const allowed = Object.keys(serviceNames);

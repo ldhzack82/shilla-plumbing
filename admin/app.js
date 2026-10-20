@@ -4,6 +4,7 @@ const state = {
   cases: [],
   editing: null,
   oldPhotos: null,
+  oldCover: null,
 };
 const fields = [
   "date",
@@ -95,6 +96,7 @@ $("logoutButton").onclick = () => {
 function resetForm() {
   state.editing = null;
   state.oldPhotos = null;
+  state.oldCover = null;
   $("caseForm").reset();
   updateTags();
   $("date").valueAsDate = new Date();
@@ -102,7 +104,9 @@ function resetForm() {
   $("photo1").required = true;
   $("photo2").required = true;
   updateThumbnail();
-  for (const id of ["preview1", "preview2"]) $(id).removeAttribute("src");
+  for (const id of ["preview1", "preview2", "preview3"]) $(id).removeAttribute("src");
+  $("representativeMode").value = "generated";
+  $("coverOption").disabled = true;
   message($("publishMessage"), "");
 }
 $("resetButton").onclick = resetForm;
@@ -282,6 +286,11 @@ function editCase(c) {
   updateTags();
   state.editing = c.path;
   state.oldPhotos = c.photos;
+  state.oldCover = c.cover || null;
+  $("photo3").value = "";
+  if (c.cover) $("preview3").src = "/" + c.path + "/" + c.cover.name;
+  else $("preview3").removeAttribute("src");
+  $("coverOption").disabled = !c.cover;
   for (const id of fields) if ($(id) && c[id] != null) $(id).value = c[id];
   $("originalPath").value = c.path;
   $("photo1").required = false;
@@ -326,6 +335,22 @@ for (const n of [1, 2])
     const file = e.target.files[0];
     if (file) $(`preview${n}`).src = URL.createObjectURL(file);
   });
+$("photo3").addEventListener("change", () => {
+  const file = $("photo3").files[0];
+  if (file) $("preview3").src = URL.createObjectURL(file);
+  else if (state.oldCover) $("preview3").src = "/" + state.editing + "/" + state.oldCover.name;
+  else $("preview3").removeAttribute("src");
+  const available = Boolean(file || state.oldCover);
+  $("coverOption").disabled = !available;
+  $("representativeMode").value = available ? "cover" : "generated";
+});
+$("removeCover").onclick = () => {
+  state.oldCover = null;
+  $("photo3").value = "";
+  $("preview3").removeAttribute("src");
+  $("coverOption").disabled = true;
+  $("representativeMode").value = "generated";
+};
 async function imageData(file) {
   if (!file) return null;
   const bitmap = await createImageBitmap(file);
@@ -363,6 +388,8 @@ $("caseForm").addEventListener("submit", async (e) => {
     form.tags = CaseTags.normalize($("tags").value);
     updateThumbnail();
     form.thumbnailImage = CaseThumbnail.image($("thumbnailPreview"));
+    form.coverImage = await imageData($("photo3").files[0]);
+    form.removeCover = !form.coverImage && !state.oldCover;
     const [image1, image2] = await Promise.all([
       imageData($("photo1").files[0]),
       imageData($("photo2").files[0]),

@@ -445,9 +445,22 @@ function normalize(c, cases = []) {
     }
   }
   c.tags = require("../lib/case-tags").normalize(c.tags === undefined ? existing?.tags : c.tags);
-  const modes = ["photo1", "photo2", "generated"];
+  delete c.cover;
+  if (c.coverImage) {
+    const img = c.coverImage;
+    const bytes = typeof img.data === "string" ? Buffer.from(img.data, "base64") : Buffer.alloc(0);
+    if (typeof img.data !== "string" || img.data.length > 2100000 ||
+        !/^[A-Za-z0-9+/]+={0,2}$/.test(img.data) ||
+        bytes.toString("ascii", 0, 4) !== "RIFF" || bytes.toString("ascii", 8, 12) !== "WEBP" ||
+        !Number.isInteger(img.width) || !Number.isInteger(img.height) ||
+        img.width < 1 || img.height < 1 || img.width > 1600 || img.height > 1600)
+      throw new Error("문구형 대표사진 형식이나 크기를 확인해주세요.");
+    c.cover = { name: "representative-cover.webp", width: img.width, height: img.height };
+  } else if (!c.removeCover && existing?.cover) c.cover = existing.cover;
+  const modes = ["photo1", "photo2", "cover", "generated"];
   const previousMode = existing?.representativeMode || (existing?.thumbnail ? "generated" : Number(existing?.thumbnailIndex) === 1 ? "photo2" : "photo1");
-  c.representativeMode = c.representativeMode || (existing ? previousMode : "photo1");
+  c.representativeMode = c.representativeMode || (existing ? previousMode : c.cover ? "cover" : "generated");
+  if (c.representativeMode === "cover" && !c.cover) c.representativeMode = "generated";
   if (!modes.includes(c.representativeMode)) throw new Error("대표 이미지를 선택해주세요.");
   c.thumbnailIndex = c.representativeMode === "photo2" ? 1 : 0;
   c.neighborhood = String(c.neighborhood || "").trim();
@@ -475,6 +488,7 @@ function normalize(c, cases = []) {
 }
 function representativeImage(c) {
   const mode = c.representativeMode || (c.thumbnail ? "generated" : Number(c.thumbnailIndex) === 1 ? "photo2" : "photo1");
+  if (mode === "cover" && c.cover) return c.cover;
   return mode === "generated" && c.thumbnail ? c.thumbnail : c.photos[mode === "photo2" ? 1 : 0];
 }
 function makeIdentity(c, cases) {
@@ -885,6 +899,8 @@ module.exports = async (req, res) => {
         ...c,
         images: undefined,
         thumbnailImage: undefined,
+        coverImage: undefined,
+        removeCover: undefined,
         oldPhotos: undefined,
         originalPath: undefined,
       });
@@ -904,6 +920,10 @@ module.exports = async (req, res) => {
       ];
       if (c.thumbnailImage?.data)
         files.push({ path: `${c.path}/${c.thumbnail.name}`, content: c.thumbnailImage.data, base64: true });
+      if (c.coverImage?.data)
+        files.push({ path: `${c.path}/${c.cover.name}`, content: c.coverImage.data, base64: true });
+      else if (old?.cover && !c.cover)
+        files.push({ path: `${c.path}/${old.cover.name}`, delete: true });
       for (let i = 0; i < 2; i++)
         if (c.images?.[i]?.data)
           files.push({
@@ -937,6 +957,7 @@ module.exports = async (req, res) => {
         { path: `${path}/index.html`, delete: true },
         ...hubFiles(next),
         ...(target.thumbnail ? [{path: `${path}/${target.thumbnail.name}`, delete: true}] : []),
+        ...(target.cover ? [{path: `${path}/${target.cover.name}`, delete: true}] : []),
         ...target.photos.map((p) => ({
           path: `${path}/${p.name}`,
           delete: true,

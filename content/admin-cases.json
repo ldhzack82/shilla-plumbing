@@ -5074,6 +5074,10 @@
       "배관내시경",
       "신라건축설비"
     ],
+    "video": {
+      "url": "/hanam/drain-clog/hanam-drain-clog-001/field-video-2cf3c0cf06348bc9.mp4",
+      "size": 6540131
+    },
     "cover": {
       "name": "representative-cover.webp",
       "width": 1448,
@@ -5086,10 +5090,6 @@
       "height": 1200
     },
     "path": "hanam/drain-clog/hanam-drain-clog-001",
-    "video": {
-      "url": "/hanam/drain-clog/hanam-drain-clog-001/field-video-915676ab957654f9.mp4",
-      "size": 2347446
-    },
     "photos": [
       {
         "name": "hanam-drain-clog-work-01.webp",
@@ -5102,6 +5102,6 @@
         "height": 1200
       }
     ],
-    "updatedAt": "2026-10-26T11:22:17.735Z"
+    "updatedAt": "2026-10-26T11:27:22.710Z"
   }
 ]

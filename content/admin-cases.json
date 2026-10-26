@@ -4999,6 +4999,7 @@
     "caption2": "변기 이물질 제거와 에어건 작업 후 재설치하고 백시멘트로 하부를 마감한 모습입니다. 마무리 통수테스트에서 정상 배수를 확인했습니다.",
     "thumbnailRegion": "",
     "representativeMode": "cover",
+    "videoCaption": "동작구 사당동 변기막힘 해결 후 통수테스트입니다. 휴지와 음식물성 이물질을 제거하고 변기를 재설치한 뒤 정상 배수를 확인했습니다.",
     "tags": [
       "변기막힘",
       "변기뚫는업체",
@@ -5023,6 +5024,10 @@
       "height": 1200
     },
     "path": "dongjak/toilet-clog/dongjak-toilet-clog-003",
+    "video": {
+      "url": "/dongjak/toilet-clog/dongjak-toilet-clog-003/field-video-77ce8a10dc21039e.mp4",
+      "size": 4729290
+    },
     "photos": [
       {
         "name": "dongjak-toilet-clog-work-01.webp",
@@ -5035,6 +5040,6 @@
         "height": 1600
       }
     ],
-    "updatedAt": "2026-10-26T08:58:37.917Z"
+    "updatedAt": "2026-10-26T09:14:28.901Z"
   }
 ]

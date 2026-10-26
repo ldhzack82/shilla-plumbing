@@ -5,6 +5,7 @@ const state = {
   editing: null,
   oldPhotos: null,
   oldCover: null,
+  oldVideo: null,
 };
 const fields = [
   "date",
@@ -25,6 +26,7 @@ const fields = [
   "caption2",
   "thumbnailRegion",
   "representativeMode",
+  "videoCaption",
 ];
 function updateTags() {
   const count = CaseTags.parse($("tags").value).length;
@@ -94,6 +96,9 @@ $("logoutButton").onclick = () => {
   location.reload();
 };
 function resetForm() {
+  state.oldVideo = null;
+  $("videoFile").setCustomValidity('');
+  clearVideoPreview();
   state.editing = null;
   state.oldPhotos = null;
   state.oldCover = null;
@@ -282,6 +287,12 @@ $("caseList").addEventListener("click", async (e) => {
   if (del !== undefined) await deleteCase(state.cases[Number(del)]);
 });
 function editCase(c) {
+  state.oldVideo = c.video || null;
+  $("videoFile").setCustomValidity('');
+  $("videoFile").value = "";
+  $("videoCaption").value = c.videoCaption || "";
+  clearVideoPreview();
+  if(c.video) { $("videoPreview").src = c.video.url; $("videoPreview").hidden=false; }
   $("tags").value = CaseTags.parse(c.tags).join(" / ");
   updateTags();
   state.editing = c.path;
@@ -351,6 +362,40 @@ $("removeCover").onclick = () => {
   $("coverOption").disabled = true;
   $("representativeMode").value = "generated";
 };
+let videoObjectUrl;
+function clearVideoPreview() {
+  $("videoPreview").pause();
+  $("videoPreview").removeAttribute('src');
+  $("videoPreview").load();
+  $("videoPreview").hidden=true;
+  if(videoObjectUrl) URL.revokeObjectURL(videoObjectUrl);
+  videoObjectUrl=null;
+}
+$("videoFile").addEventListener('change',()=>{
+  clearVideoPreview();
+  const file=$("videoFile").files[0];
+  $("videoFile").setCustomValidity('');
+  if(file && (!/\.mp4$/i.test(file.name) || file.size>20*1024*1024 || !file.size)) {
+    $("videoFile").setCustomValidity('20MB 이하의 MP4 영상을 선택해주세요.');
+    $("videoFile").reportValidity(); return;
+  }
+  if(file) {videoObjectUrl=URL.createObjectURL(file);$("videoPreview").src=videoObjectUrl;$("videoPreview").hidden=false;}
+  else if(state.oldVideo) {$("videoPreview").src=state.oldVideo.url;$("videoPreview").hidden=false;}
+});
+$("removeVideo").onclick=()=>{
+  state.oldVideo=null; $("videoFile").value=''; $("videoFile").setCustomValidity(''); $("videoCaption").value='';clearVideoPreview();
+};
+async function uploadVideo(file) {
+  if(!file) return undefined;
+  if(!/\.mp4$/i.test(file.name) || !file.size || file.size>20*1024*1024) throw new Error('20MB 이하의 MP4 영상을 선택해주세요.');
+  const receipts=[];
+  for(let offset=0;offset<file.size;offset+=2*1024*1024) {
+    message($("publishMessage"),`영상 업로드 중… ${Math.floor(offset/file.size*100)}%`);
+    const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result.split(',')[1]);reader.onerror=reject;reader.readAsDataURL(file.slice(offset,offset+2*1024*1024));});
+    const out=await api('videoChunk',{data}); receipts.push(out.receipt);
+  }
+  return receipts;
+}
 async function imageData(file) {
   if (!file) return null;
   const bitmap = await createImageBitmap(file);
@@ -398,6 +443,8 @@ $("caseForm").addEventListener("submit", async (e) => {
       throw new Error("사진 1을 선택해주세요.");
     if (!image2 && !state.oldPhotos?.[1])
       throw new Error("사진 2를 선택해주세요.");
+    form.videoChunks = await uploadVideo($("videoFile").files[0]);
+    form.removeVideo = !form.videoChunks && !state.oldVideo;
     message($("publishMessage"), "GitHub에 게시 중…");
     const out = await api("publish", {
       caseData: {

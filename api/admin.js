@@ -700,6 +700,7 @@ function regionHub(cases, region) {
   areas.sort();
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(pageSeo.areaMetadata(info.title).title)}</title><meta name="description" content="${esc(pageSeo.areaMetadata(info.title).description)}"><link rel="canonical" href="${DOMAIN}/${region}/"><link rel="stylesheet" href="../field-notes/styles.css"></head><body><header class="topbar"><div class="wrap"><a class="brand" href="../">신라건축설비</a><a class="home-link" href="../field-notes/">전체 현장기록</a></div></header><main><section class="hero"><div class="wrap"><p class="eyebrow">${info.title} FIELD NOTES</p><h1>${info.name} 지역별 배관 현장사례</h1><p>실제 출동 기록이 있는 지역을 중심으로 변기·싱크대·하수구·배관 작업 사례를 연결합니다.</p></div></section><div class="wrap breadcrumbs"><a href="../">홈</a> › ${info.name}</div><div class="wrap"><div class="path-links">${areas.map((a)=>{const n=rows.filter((c)=>(region==="gyeonggi"?topAreaForDistrict(c.district):c.district)===a).length;const href=region==="gyeonggi"?topAreaSlug(a):districtSlugFor(a);return `<a class="path-link" href="../${href}/">${esc(a)} 배관 현장<small>실제 현장사례 ${n}건</small></a>`}).join("")}</div></div><div class="wrap board-tools"><span class="board-count">전체 ${rows.length}건</span></div><div class="wrap board-list">${rows.slice(0,12).map((c)=>hubCard(c,"../")).join("")}</div></main><footer class="footer"><div class="wrap">신라건축설비 · ${info.name} 배관 상담 · 1877-0558</div></footer></body></html>`;
 }
+const methodHubs = require("../lib/method-hubs");
 function hubFiles(cases) {
   const files = Object.keys(REGION_INFO).map((region)=>({path:`${region}/index.html`,content:regionHub(cases,region)}));
   for (const serviceKey of Object.keys(CORE_SERVICE_SEO)) files.push({path:`services/${serviceKey}/index.html`,content:globalServiceHub(cases,serviceKey)});
@@ -711,6 +712,7 @@ function hubFiles(cases) {
   }
   const cities = [...new Set(cases.filter((c)=>regionForDistrict(c.district)==="gyeonggi").map((c)=>parentCityForDistrict(c.district)).filter(Boolean))];
   for (const city of cities) files.push({path:`${topAreaSlug(city)}/index.html`,content:cityHub(cases,city)});
+  files.push(...methodHubs.files(cases, hubCard));
   for (const file of files) file.content = companyHub.addCompanyGuideLink(file.content);
   files.push({path: companyHub.PATH, content: companyHub.renderCompanyHub(cases)});
   // A city may have cases both with and without a child district. Its combined
@@ -796,7 +798,7 @@ function updateSitemap(xml, cases) {
   }, companyHub.REVISION_DATE);
   xml = setSitemapLastmod(xml, companyHub.URL, companyDate);
   const existingUrls = new Set([...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
-  const hubUrls = [companyHub.URL, ...Object.keys(CORE_SERVICE_SEO).map((serviceKey)=>`${DOMAIN}/services/${serviceKey}/`)];
+  const hubUrls = [...Object.keys(methodHubs.methods).map(key=>`${DOMAIN}/services/${key}/`), companyHub.URL, ...Object.keys(CORE_SERVICE_SEO).map((serviceKey)=>`${DOMAIN}/services/${serviceKey}/`)];
   for (const region of Object.keys(REGION_INFO)) hubUrls.push(`${DOMAIN}/${region}/`);
   for (const city of [...new Set(cases.map((c)=>parentCityForDistrict(c.district)).filter(Boolean))]) hubUrls.push(`${DOMAIN}/${topAreaSlug(city)}/`);
   for (const district of [...new Set(cases.map((c) => c.district))]) {

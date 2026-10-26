@@ -5109,8 +5109,8 @@
     "service": "sink-clog",
     "district": "성남시 분당구",
     "neighborhood": "금곡동",
-    "title": "분당구 금곡동 식당 싱크대막힘, 굳은 기름때 석션·샤프트 반복 제거",
-    "summary": "오래된 주름관과 배수관에 쌓인 기름때를 확인하고 석션·샤프트 작업을 반복해 제거한 뒤 최종 통수테스트로 배수를 확인했습니다.",
+    "title": "식당 기름때 석션·샤프트 반복 제거",
+    "summary": "오래된 주름관과 배수관의 굳은 기름때를 석션·샤프트로 반복 제거하고 통수를 확인했습니다.",
     "symptom": "성남시 분당구 금곡동 식당에서 싱크대와 연결된 주방 배수관이 막혀 물이 원활하게 빠지지 않았습니다.",
     "cause": "오래된 주름관과 배수관에 많은 기름때가 쌓였으며, 주름관 형태를 따라 굳은 기름때가 배수 통로를 막고 있었습니다.",
     "equipment": "석션 장비 · 샤프트",
@@ -5136,6 +5136,10 @@
       "기름때제거",
       "신라건축설비"
     ],
+    "video": {
+      "url": "/성남시-분당구/sink-clog/성남시-분당구-sink-clog-001/field-video-9a0fe6ec355dbbac.mp4",
+      "size": 14290517
+    },
     "cover": {
       "name": "representative-cover.webp",
       "width": 1086,
@@ -5148,10 +5152,6 @@
       "height": 1200
     },
     "path": "성남시-분당구/sink-clog/성남시-분당구-sink-clog-001",
-    "video": {
-      "url": "/성남시-분당구/sink-clog/성남시-분당구-sink-clog-001/field-video-9a0fe6ec355dbbac.mp4",
-      "size": 14290517
-    },
     "photos": [
       {
         "name": "성남시-분당구-sink-clog-work-01.webp",
@@ -5164,6 +5164,6 @@
         "height": 1600
       }
     ],
-    "updatedAt": "2026-10-26T11:52:19.827Z"
+    "updatedAt": "2026-10-26T11:53:55.617Z"
   }
 ]

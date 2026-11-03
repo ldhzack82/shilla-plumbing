@@ -457,7 +457,7 @@ function normalize(c, cases = []) {
         !Number.isInteger(img.width) || !Number.isInteger(img.height) ||
         img.width < 1 || img.height < 1 || img.width > 1600 || img.height > 1600)
       throw new Error("문구형 대표사진 형식이나 크기를 확인해주세요.");
-    c.cover = { name: "representative-cover.webp", width: img.width, height: img.height };
+    c.cover = { name: [c.district, c.neighborhood, serviceNames[c.service], "대표사진", "신라건축설비"].map(value => slug(value)).filter(Boolean).join("-") + ".webp", width: img.width, height: img.height };
   } else if (!c.removeCover && existing?.cover) c.cover = existing.cover;
   const modes = ["photo1", "photo2", "cover", "generated"];
   const previousMode = existing?.representativeMode || (existing?.thumbnail ? "generated" : Number(existing?.thumbnailIndex) === 1 ? "photo2" : "photo1");

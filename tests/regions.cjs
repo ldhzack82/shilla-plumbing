@@ -11,6 +11,9 @@ mod._compile(fs.readFileSync(file, 'utf8') + '\nmodule.exports={canonicalDistric
 const api = mod.exports;
 const read = p => fs.readFileSync(path.join(root, p), 'utf8');
 const cases = JSON.parse(read('content/admin-cases.json'));
+// Match the current editor contract: it sends a regenerated PNG on every save.
+const thumbnailFixture = cases.find(c => c.thumbnail);
+const formCase = c => ({...c, thumbnailImage: {data: fs.readFileSync(path.join(root,thumbnailFixture.path,thumbnailFixture.thumbnail.name)).toString('base64')}});
 const examples = [
   ['서울특별시 서초구','서초구','seoul'], ['서울서초구','서초구','seoul'],
   [' 서울   강남구 ','강남구','seoul'], ['경기도 광주시','광주시','gyeonggi'],
@@ -24,7 +27,7 @@ const examples = [
 for (const [input,district,region] of examples) {
   assert.equal(api.canonicalDistrict(input), district, input);
   assert.equal(api.regionForDistrict(input), region, input);
-  const normalized = api.normalize({...cases[0],district:input});
+  const normalized = api.normalize({...formCase(cases[0]),district:input});
   assert.equal(normalized.district, district);
   assert.equal(api.canonicalDistrict(district),district,'normalization must be idempotent');
 }
@@ -39,7 +42,7 @@ const hubs = new Map(api.hubFiles(cases).map(f=>[f.path,f.content]));
 assert.equal(hubs.size,api.hubFiles(cases).length,'no overlapping hub paths');
 for(const c of cases) {
   assert.equal(api.canonicalDistrict(c.district),c.district,c.path);
-  assert.equal(api.normalize({...c,originalPath:c.path},cases).district,c.district);
+  assert.equal(api.normalize({...formCase(c),originalPath:c.path},cases).district,c.district);
   assert.equal(api.makeIdentity({...c,originalPath:c.path},cases).path,c.path);
   const slug=api.districtSlugFor(c.district), region=api.regionForDistrict(c.district);
   for(const p of [`${slug}/index.html`,`${slug}/${c.service}/index.html`]) {

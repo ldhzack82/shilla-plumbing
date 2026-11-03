@@ -518,8 +518,8 @@ function makeIdentity(c, cases) {
   return { districtSlug, id, path: `${districtSlug}/${c.service}/${id}` };
 }
 function imageNames(c) {
-  const local = `${districtSlugs[c.district] || slug(c.district) || "field"}-${c.service}`;
-  return [`${local}-work-01.webp`, `${local}-work-02.webp`];
+  const local = [c.district, c.neighborhood, serviceNames[c.service] || c.service].map(value => slug(value)).filter(Boolean).join("-") || "field";
+  return [1, 2].map(index => `${local}-현장사진-${String(index).padStart(2, "0")}-신라건축설비.webp`);
 }
 function regionBlock(c) {
   const service = serviceNames[c.service];

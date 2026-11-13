@@ -7,7 +7,8 @@ assert.deepEqual(tags.normalize(' 변기막힘 / 서울변기막힘, #변기막�
 assert.deepEqual(tags.normalize(undefined), []);
 const ten = Array.from({length:10},(_,i)=>`태그${i}`);
 assert.deepEqual(tags.normalize(ten.join('/')),ten);
-assert.throws(()=>tags.normalize([...ten,'초과']),/최대 10개/);
+assert.deepEqual(tags.normalize([...ten,'추가']),[...ten,'추가']);
+assert.equal((tags.render([...ten,'추가']).match(/class="case-tag"/g)||[]).length,11);
 assert.equal(tags.render(undefined),'');
 assert.ok(!tags.render(['<script>']).includes('<script>'));
 const file = path.resolve(__dirname,'../api/admin.js');
@@ -17,11 +18,13 @@ const api=mod.exports;
 const cases=require('../content/admin-cases.json');
 const before=JSON.stringify(cases);
 for(const c of cases) {
-  const normalized=api.normalize({...c,originalPath:c.path},cases);
-  assert.deepEqual(normalized.tags,[]);
-  assert.equal(api.article(normalized).includes('class="case-tags"'),false);
+  const fixture=cases.find(x=>x.thumbnail); const thumbnailImage={data:fs.readFileSync(path.join(__dirname,'..',fixture.path,fixture.thumbnail.name)).toString('base64')};
+  const normalized=api.normalize({...c,originalPath:c.path,thumbnailImage},cases);
+  assert.deepEqual(normalized.tags,tags.parse(c.tags));
+  assert.equal(api.article(normalized).includes('class="case-tags"'),tags.parse(c.tags).length>0);
 }
-const original=cases[0];
+const png=Buffer.alloc(24); Buffer.from('89504e470d0a1a0a','hex').copy(png); png.writeUInt32BE(1200,16); png.writeUInt32BE(1200,20);
+const original={...cases[0],thumbnailImage:{data:png.toString('base64')}};
 const tagged={...original,tags:ten};
 assert.deepEqual(api.normalize({...original,originalPath:original.path},[tagged]).tags,ten);
 assert.deepEqual(api.normalize({...original,originalPath:original.path,tags:[]},[tagged]).tags,[]);
@@ -36,4 +39,4 @@ assert.ok(html.indexOf('class="case-tags"')>html.indexOf('<iframe'));
 const clean=api.article({...next,tags:[]});
 assert.equal(html.replace(tags.render(ten),''),clean,'tags must not alter SEO/body/images');
 assert.equal(JSON.stringify(cases),before);
-console.log(`PASS: tag limits, normalization, escaping, ${cases.length} legacy cases, edit preservation/removal, new identity, final CTA placement and unchanged article/SEO.`);
+console.log(`PASS: unlimited tags, normalization, escaping, ${cases.length} legacy cases, edit preservation/removal, new identity, final CTA placement and unchanged article/SEO.`);

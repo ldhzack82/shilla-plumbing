@@ -30,8 +30,8 @@ const fields = [
 ];
 function updateTags() {
   const count = CaseTags.parse($("tags").value).length;
-  $("tagsCount").textContent = `${count} / 10개${count > 10 ? " — 10개 이하로 줄여주세요." : ""}`;
-  $("tags").setCustomValidity(count > 10 ? "태그는 최대 10개까지 입력해주세요." : "");
+  $("tagsCount").textContent = `${count}개`;
+  $("tags").setCustomValidity("");
 }
 $("tags").addEventListener("input", updateTags);
 const serviceNames = {
